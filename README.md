@@ -26,4 +26,9 @@ Currently, we cannot provide a simple `fit_model()`-function that will fit your 
 <!-- 
 Others have solved parts of these problems before.
 For example, the `AMPtool`, written in matlab, is doing an amazing job at incorporating different types of observations, but does not account for uncertainties. <br>
-The matlab package `BYOM` is also an excellent tool to fit dynamic models to data, but incorporating data which is not time-resolved, or includes independent variables which have not been considere before can be tricky. <br><br>->
+The matlab package `BYOM` is also an excellent tool to fit dynamic models to data, but incorporating data which is not time-resolved, or includes independent variables which have not been considere before can be tricky. <br><br> -->
+
+
+# TODO
+
+- Should mempyfit use pymob as a depency? Should they become one eventually?
