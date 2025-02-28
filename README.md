@@ -10,8 +10,8 @@ The `mempy` ecosystem also includes `mempyGUTS`, which already has built-in func
 Furthermore, there is [pymob](https://pymob.readthedocs.io/en/latest/), which also allows to flexibly configure mechanistic model fits. <br>
 This might be confusing at first, but we can provide some rough guidelines for what to use when:
 
- - `mempyGUTS`: Fitting GUTS models to standard toxicity data (including mixtures). Local optimization of GUTS models is easy with `mempyDEB`, but uncertainty analysis is rudimentary. Fitting of standard GUTS models can be done without much knowledge of what happens *under the hood*. 
- - `mempyfit`: Primarily designed for fitting models `mempyDEB` uFitting any ODE-based model to data using local optimization or likelihood-free Bayesian inference. Only provides some basic infrastructure. Application to new cases requires some knowledge of how model fitting works (e.g. defining your own loss function).
+ - `mempyGUTS`: Fitting GUTS models to standard toxicity data (including mixtures). Local optimization of GUTS models is easy with `mempyGUTS`, but uncertainty analysis is rudimentary. Fitting of standard GUTS models can be done without much knowledge of what happens *under the hood*. 
+ - `mempyfit`: Primarily designed for fitting models defined in `mempyDEB`. Only provides some basic infrastructure. Application to new cases requires some knowledge of how model fitting works (e.g. defining your own loss function).
 - `pymob`: Basically a domain-specific language for specifiyng model ODE-based model calibrations. This is best to use if you want to apply your fitting process to a large number of cases, and if it is worhtwhile to invest a few hours to get acquainted with the interface.
 
 
