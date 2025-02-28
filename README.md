@@ -17,7 +17,7 @@ This might be confusing at first, but we can provide some rough guidelines for w
 
 ## Why are not doing everything with one package?
 
-This guide has been written in February 2025. Eventually, the goal might be to do everything with `pymob`. <br>
+I am writing this in February 2025. Eventually, the goal might be to do everything with `pymob`. <br>
 In essence, we currently have no off-the-shelf solution for fitting dynamic models to data. <br><br>
 The challenges here mostly lie in the variability of the input data and the consequences for formulatig a loss function or likelihood. For example, fitting GUTS models to standard toxicity data has the advantage that the input data is always survival over time. For DEB models, the situation can be very different. Sometimes we have growth and reproduction over time, sometimes we have only scalar measurements (e.g. somatic growth rate, maximum reproductive output etc.), sometimes a combination of both. Therefore, we also cannot always directly compare the ODE solutions to observations, but need to perform some additional processing before we can calculate the loss (or likelihood, error, whatever...). <br>
 All of this necessitates a certain amount of flexibilty in the definition of the fitting problem. <br>
