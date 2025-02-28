@@ -1,20 +1,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='mempyDEB',
+    name='mempyfit',
     version='0.1.0',
-    description='DEB-TKTD modelling in Python',
+    description='Fitting DEB-TKTD models in Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Simon Hansul',
     author_email='simonhansul@gmail.com',
-    url='https://github.com/simonhansul/mempyDEB',
+    url='https://github.com/simonhansul/mempyfit',
     packages=find_packages(),
     install_requires=[
         'numpy',
         'pandas',
         'scipy',
-        'mesa',
+        'pyabc',
         'tqdm',
         'yml',
         'collections'
