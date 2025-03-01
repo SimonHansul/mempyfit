@@ -1,12 +1,13 @@
 # Defines the ModelFit class
 
-from scipy.optimize import minimize
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+from scipy.optimize import minimize
 import pyabc
 import tempfile
 import os
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class ModelFit:
@@ -60,6 +61,7 @@ class ModelFit:
         """
         Draw a sample from the priors.
         """
+
         samples = [self.prior[p].rvs() for p in self.prior.keys()]
         return dict(zip(self.prior.keys(), samples))
     
@@ -95,7 +97,6 @@ class ModelFit:
             max_nr_populations = 10,
             temp_database = "data.db"
             ):
-        
         """
         Apply Bayesian inference, using Sequential Monte Carlo Approximate Bayesian Computation (SMC-ABC) 
         from the `pyABC` package.
@@ -245,16 +246,16 @@ def SSQ(D, P):
 
 
 def logMSE(D, P):
-        
     """
     Mean squared error of log-transformed values.
     """
+
     return np.sum(((np.log(D + 1) - np.log(P + 1))**2)/len(D)) 
 
 
-def logSSQ(D, P):
-        
+def logSSQ(D, P):      
     """
     Sum of squared error of log-transformed values.
     """
+
     return np.sum(((np.log(D + 1) - np.log(P + 1))**2)) 

@@ -3,7 +3,6 @@
 This package is part of the `mempy` ecosystem. <br>
 The goals of this package is to provide basic functioanlity to fit (DEB-)TKTD models using either local optimization, global optimization or likelihood-free Bayesian inference.
 
-
 ## Installation
 
 You can install the package using the repo URL and pip:
@@ -50,4 +49,3 @@ Now we can execute the model fit using either one of two methods:
 f.run_optimization() # run local optimization
 f.run_bayesian_inference() # run likelihod-free bayesian inference
 ```
- 

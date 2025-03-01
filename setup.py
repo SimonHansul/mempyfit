@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mempyfit',
-    version='0.1.1',
+    version='0.1.2s',
     description='Fitting DEB-TKTD models in Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
@@ -16,7 +16,9 @@ setup(
         'scipy',
         'pyabc',
         'tqdm',
-        'yml'
+        'yml',
+        'matplotlib',
+        'seaborn'
         ],
     classifiers=[
         'Programming Language :: Python :: 3',
