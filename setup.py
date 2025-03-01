@@ -8,7 +8,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Simon Hansul',
     author_email='simonhansul@gmail.com',
-    url='https://github.com/simonhansul/mempyfit',
+    url='https://github.com/simonhansul/mempyfit.git',
     packages=find_packages(),
     install_requires=[
         'numpy',
@@ -16,8 +16,7 @@ setup(
         'scipy',
         'pyabc',
         'tqdm',
-        'yml',
-        'collections'
+        'yml'
         ],
     classifiers=[
         'Programming Language :: Python :: 3',
