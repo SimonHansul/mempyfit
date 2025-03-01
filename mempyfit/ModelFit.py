@@ -1,4 +1,3 @@
-# ModelFittingAssistant.py
 # Defines the ModelFit class
 
 from scipy.optimize import minimize
