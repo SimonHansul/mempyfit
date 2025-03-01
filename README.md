@@ -44,4 +44,10 @@ f.define_lognorm_prior(medians, sigma = 1)
 
 The `define_lognorm_prior` method will then apply the same log-variance to all parameters. <br> 
 
+Now we can execute the model fit using either one of two methods:
+
+```Python
+f.run_optimization() # run local optimization
+f.run_bayesian_inference() # run likelihod-free bayesian inference
+```
  
