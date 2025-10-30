@@ -9,7 +9,6 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
 class ModelFit:
 
     def __init__(self):
@@ -95,7 +94,8 @@ class ModelFit:
         # pyabc expects the data in dict format 
         # if the data is not already given in dict format, 
         # we define a dict with a single entry, 
-        # and define a wrapper around the loss function 
+        # and define a wrapper around the loss function
+         
         if type(self.data)!=dict: 
             data_smc = {'data' : self.data}
 

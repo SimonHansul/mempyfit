@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='mempyfit',
     version='0.1.2',
-    description='Fitting DEB-TKTD models in Python',
+    description='Helper functions for model fitting in Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Simon Hansul',

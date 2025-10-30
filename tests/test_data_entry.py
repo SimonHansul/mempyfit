@@ -32,3 +32,19 @@ def test_constructing_minimal_dataset_from_scratch():
 
     # Optional sanity check: dataset contains 2 entries
     assert len(data.names) == 2
+
+    data.add(
+        name="tL",
+        value=np.array([
+            [0, 0.1], 
+            [2, 0.12], 
+            [5, 0.2], 
+            [7, 0.25], 
+            [9, 0.26], 
+            [12, 0.27], 
+            [14, 0.27]
+        ]),
+        units=["d", "mm"],
+        labels=["length growth over time"],
+        temperature=C2K(20)
+    )
