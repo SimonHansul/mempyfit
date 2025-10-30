@@ -11,16 +11,6 @@ import seaborn as sns
 
 
 class ModelFit:
-    """
-    A class to guide modellers through the model fitting process. 
-
-    Use `fit = ModelFit()` to initialize an empty model fitting object. 
-    Use `fit.guide()` to get an update on which components are still missing.
-
-    After all components have been defined, use either `fit.Bayesian_inference()` 
-    to perform Bayesian inference of parameters using SMC-ABC from the pyabc package, 
-    or `fit.optimization()` to perform optimization, which internally calls `scipy.optimize.minimize()`.
-    """
 
     def __init__(self):
 
