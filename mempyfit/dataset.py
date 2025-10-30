@@ -5,8 +5,6 @@ import numpy as np
 import math
 import warnings
 
-
-
 class AbstractDataset:
     """Abstract base class for dataset containers."""
     pass
@@ -127,9 +125,7 @@ class Dataset(AbstractDataset):
             ("comment", self.comments[idx]),
         ])
 
-    # -----------------------------------------------------------
-    # Pretty-print
-    # -----------------------------------------------------------
+ 
     def __repr__(self):
         out = [f"<Dataset with {len(self.names)} entries>"]
         for i, name in enumerate(self.names):
