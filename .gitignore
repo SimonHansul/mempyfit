@@ -1,5 +1,4 @@
 mempyfit/__pycache__/*
-<<<<<<< HEAD
 dist/*
 build/*
 
@@ -8,7 +7,3 @@ build/*
 *.egg-info/dependency_links.txt
 *.egg-info/requires.txt
 *.egg-info/top_level.txt
-=======
-mempyfit.egg-info/*
-dist/*
->>>>>>> 425afa07ae29cc06500de1c395885748d9cd458f
