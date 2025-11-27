@@ -1,5 +1,6 @@
 README.md
 setup.py
+mempyfit/ModelFit.py
 mempyfit/__init__.py
 mempyfit/dataset.py
 mempyfit/modelfit.py

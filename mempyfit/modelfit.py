@@ -14,8 +14,8 @@ class ModelFit:
     def __init__(self):
 
         self.data: dict = None
-        self.simulator: function = None
-        self.loss: function = None
+        self.simulator = None
+        self.loss = None
         self.prior = None
         self.intguess: dict = None
         self.defaultparams: dict = None

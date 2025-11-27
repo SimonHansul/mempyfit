@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from collections import OrderedDict
 import numpy as np
-import math
 import warnings
 
 class AbstractDataset:
@@ -10,19 +9,7 @@ class AbstractDataset:
     pass
 
 
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from collections import OrderedDict
-import numpy as np
-import math
-import warnings
-
-
-# -----------------------------------------------------------
-# Abstract base class
-# -----------------------------------------------------------
 class AbstractDataset:
-    """Abstract base class for dataset containers."""
     pass
 
 
@@ -51,30 +38,35 @@ class Dataset(AbstractDataset):
         value,
         units,
         labels,
-        temperature: float = math.nan,
+        temperature: float = np.nan,
         temperature_unit: str = "K",
         dimensionality_type: DimensionalityType | None = None,
         bibkey: str = "",
         comment: str = "",
     ) -> None:
+        """
+        Add a data entry to a dataset. 
+        Minimum information needed are 
+        - name 
+        - value
+        - units 
+        - labels
+        """
 
         # Check temperature consistency
-        if math.isnan(temperature) and all("temp" not in l for l in np.atleast_1d(labels)):
+        if np.isnan(temperature) and all("temp" not in l for l in np.atleast_1d(labels)):
             warnings.warn(f"No temperature given for {name} and no temperature found in labels.")
 
-        if not math.isnan(temperature) and (temperature_unit == "K") and (temperature < 200):
+        if not np.isnan(temperature) and (temperature_unit == "K") and (temperature < 200):
             raise ValueError(f"Implausible temperature {temperature} K given for {name}")
 
         # Infer dimensionality
         if dimensionality_type is None:
             if np.isscalar(value):
-                print(f"[INFO] Assuming {name} to be zerovariate")
                 dimensionality_type = DimensionalityType.ZEROVARIATE
             elif isinstance(value, np.ndarray) and value.ndim == 2 and value.shape[1] == 2:
-                print(f"[INFO] Assuming {name} to be univariate")
                 dimensionality_type = DimensionalityType.UNIVARIATE
             else:
-                print(f"[INFO] Assuming {name} to be multivariate")
                 dimensionality_type = DimensionalityType.MULTIVARIATE
 
         # Normalize units and labels
@@ -106,9 +98,6 @@ class Dataset(AbstractDataset):
         idx = self.names.index(name)
         self.values[idx] = value
 
-    # -----------------------------------------------------------
-    # Info retrieval
-    # -----------------------------------------------------------
     def getinfo(self, name: str) -> OrderedDict:
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
