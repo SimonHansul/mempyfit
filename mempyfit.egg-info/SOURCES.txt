@@ -1,0 +1,13 @@
+README.md
+setup.py
+mempyfit/__init__.py
+mempyfit/dataset.py
+mempyfit/modelfit.py
+mempyfit.egg-info/PKG-INFO
+mempyfit.egg-info/SOURCES.txt
+mempyfit.egg-info/dependency_links.txt
+mempyfit.egg-info/requires.txt
+mempyfit.egg-info/top_level.txt
+tests/__init__.py
+tests/fixtures.py
+tests/test_data_entry.py

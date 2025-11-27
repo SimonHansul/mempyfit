@@ -1,0 +1,9 @@
+mempyfit/__pycache__/*
+dist/*
+build/*
+
+# Egg info files
+*.egg-info/PKG-INFO
+*.egg-info/dependency_links.txt
+*.egg-info/requires.txt
+*.egg-info/top_level.txt
