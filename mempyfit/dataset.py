@@ -3,6 +3,7 @@ from enum import Enum, auto
 from collections import OrderedDict
 import numpy as np
 import warnings
+from multipledispatch import dispatch
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -30,6 +31,7 @@ class Dataset(AbstractDataset):
     values: list = field(default_factory=list)  # could be numbers or np.ndarray
     units: list[list[str]] = field(default_factory=list)
     labels: list[list[str]] = field(default_factory=list)
+    titles: list[list[str]] = field(default_factory=list)
     temperatures: list[float] = field(default_factory=list)
     temperature_units: list[str] = field(default_factory=list)
     dimensionality_types: list[DimensionalityType] = field(default_factory=list)
@@ -42,6 +44,7 @@ class Dataset(AbstractDataset):
         value,
         units,
         labels,
+        title: str = "",
         temperature: float = np.nan,
         temperature_unit: str = "K",
         dimensionality_type: DimensionalityType | None = None,
@@ -84,6 +87,7 @@ class Dataset(AbstractDataset):
         self.values.append(value)
         self.units.append(units)
         self.labels.append(labels)
+        self.titles.append(title)
         self.temperatures.append(temperature)
         self.temperature_units.append(temperature_unit)
         self.dimensionality_types.append(dimensionality_type)
@@ -111,6 +115,7 @@ class Dataset(AbstractDataset):
             ("value", self.values[idx]),
             ("units", self.units[idx]),
             ("labels", self.labels[idx]),
+            ("title", self.titles[idx]),
             ("temperature", self.temperatures[idx]),
             ("temperature_units", self.temperature_units[idx]),
             ("dimensionality_type", self.dimensionality_types[idx].name),
@@ -129,12 +134,28 @@ class Dataset(AbstractDataset):
         return "\n".join(out)
     
     def plot(self, name, ax = None):
-    
+
+        if not ax:
+            fig = plt.figure()
+            ax = fig.gca()
+        else:
+            fig = None
+
         info = self.getinfo(name)
-        data = info["value"]
-    
-        return plot_data(data, ax)
+        value = info['value']
+
+        ax.scatter(value[:,0], value[:,1])
+        ax.set(
+            xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
+            ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
+            title = info['title']
+            )
+        
+        if not fig:
+            return ax
+        else:
+            return fig, ax
+        
                 
             
-        
-
+    

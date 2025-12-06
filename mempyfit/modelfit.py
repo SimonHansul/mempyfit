@@ -18,7 +18,7 @@ class ModelFit:
         self.loss: function = None
         self.prior = None
         self.intguess: dict = None
-        self.defaultparams: dict = None
+        self.parameters: dict = None
         
         self.optimization_result = None
         self.abc_history = None
