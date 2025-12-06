@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 @dataclass
 class Parameters:
     names: list[str]
