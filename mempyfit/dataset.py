@@ -7,6 +7,7 @@ import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 class AbstractDataset:
     """Abstract base class for dataset containers."""
     pass
@@ -17,8 +18,8 @@ class AbstractDataset:
 
 
 class DimensionalityType(Enum):
-    ZEROVARIATE = auto()
-    UNIVARIATE = auto()
+    ZEROVARIATE  = auto()
+    UNIVARIATE   = auto()
     MULTIVARIATE = auto()
 
 
@@ -127,12 +128,13 @@ class Dataset(AbstractDataset):
             )
         return "\n".join(out)
     
-    #def plot(self, name, ax = None):
-#
-    #    info = self.getinfo(name)
-    #    data = info["value"]
-#
-    #    return plot_data(data, ax)
+    def plot(self, name, ax = None):
+    
+        info = self.getinfo(name)
+        data = info["value"]
+    
+        return plot_data(data, ax)
                 
             
+        
 
