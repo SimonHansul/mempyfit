@@ -22,6 +22,9 @@ class Parameters:
             self.units.append(info['unit'])
             self.labels.append(info['label'])
 
+        # lookup table for faster indexing
+        self._index = {name: i for i, name in enumerate(names)}
+
     def __getitem__(self, name):
-        return self.values[names==name]
+        return self.values[self._index[name]]
         

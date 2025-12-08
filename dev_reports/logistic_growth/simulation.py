@@ -39,4 +39,4 @@ def simulator(parameters):
         t_eval = data['t-OD'][:,0] # see t_eval keyword argument above 
     )
 
-    return sim.y
+    return np.array([sim.t, sim.y[0]]).transpose()

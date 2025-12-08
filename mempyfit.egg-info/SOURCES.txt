@@ -4,6 +4,7 @@ mempyfit/ModelFit.py
 mempyfit/__init__.py
 mempyfit/dataset.py
 mempyfit/modelfit.py
+mempyfit/parameters.py
 mempyfit.egg-info/PKG-INFO
 mempyfit.egg-info/SOURCES.txt
 mempyfit.egg-info/dependency_links.txt
