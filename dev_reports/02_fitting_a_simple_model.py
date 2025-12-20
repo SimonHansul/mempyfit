@@ -1,8 +1,6 @@
 import sys
-
 import os
 sys.path.append(os.path.abspath(r'C:\Users\hansul\projects\mempy_packages\memypfit\mempyfit\dev_reports'))
-
 from logistic_growth.fitting import fit
 
 sim = fit.simulator(fit.parameters)

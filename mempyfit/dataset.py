@@ -24,6 +24,9 @@ class DimensionalityType(Enum):
     MULTIVARIATE = auto()
 
 
+def ssq
+
+
 @dataclass
 class Dataset(AbstractDataset):
     metadata: dict = field(default_factory=dict)
@@ -31,6 +34,7 @@ class Dataset(AbstractDataset):
     values: list = field(default_factory=list)  # could be numbers or np.ndarray
     units: list[list[str]] = field(default_factory=list)
     labels: list[list[str]] = field(default_factory=list)
+    error_models: list[fun] = field(default_factory=list)
     titles: list[list[str]] = field(default_factory=list)
     temperatures: list[float] = field(default_factory=list)
     temperature_units: list[str] = field(default_factory=list)
@@ -44,6 +48,7 @@ class Dataset(AbstractDataset):
         value,
         units,
         labels,
+        error_model: callable = ssq, 
         title: str = "",
         temperature: float = np.nan,
         temperature_unit: str = "K",

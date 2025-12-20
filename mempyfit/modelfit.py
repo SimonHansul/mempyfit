@@ -46,6 +46,14 @@ class ModelFit:
 
         return fig, ax
     
+    def define_loss(self):
+        
+        names = fit.data.names
+    
+
+        def loss(sim, obs):
+            for nm in fit.data.names:
+    
     def prior_sample(self):
         """
         Draw a sample from the priors.
