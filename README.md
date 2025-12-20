@@ -1,7 +1,12 @@
 # mempyfit
 
-This package is part of the `mempy` ecosystem. <br>
-The goal of this package is to provide basic functioanlity to fit (DEB-)TKTD models using either local optimization, global optimization or likelihood-free Bayesian inference.
+The goal of this package is to provide basic functioanlity to fit dynamic ecotoxicological models using different methods.
+
+This package has primarily been developed for teaching purposes at University Osnabrück and for the PhD school *Dynamic Modelling of Toxic Effects* hosted by University of Copenhagen. 
+
+The functionality of the package is currently mostly limited to what is useful for these courses, although I can envision further development in the future.
+ 
+Contributions are welcome (open an Issue or contact me directly). 
 
 ## Installation
 

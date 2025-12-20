@@ -3,6 +3,7 @@ data = Dataset()
 
 data.add(
     name = 't-OD', 
+    # we can add values here or (better) read the from files
     value = np.array([
         [ -0.05911330049261121,0.10723981900452495],
         [2.0886699507389164,0.10723981900452495],

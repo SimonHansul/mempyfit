@@ -1,6 +1,7 @@
 from .data import *
 from .parameters import *
 from scipy.integrate import solve_ivp
+from mempyfit import Dataset
   
 def dNdt(t, y, p: dict):
     """
@@ -18,6 +19,8 @@ def dNdt(t, y, p: dict):
 tmin = np.min(data['t-OD'][:,0])
 tmax = np.max(data['t-OD'][:,0])+1
 
+sim_dataset = data.empty_like()
+
 def simulator(parameters):
 
     """
@@ -29,7 +32,7 @@ def simulator(parameters):
     kwargs:
     -t_eval: time-points to be evaluated by the ODE solver. By default, the unique time-points in a globally defined data frame called `data`
     """
-    
+
     y0 = [data['t-OD'][0,1]] # initial conditions for the ODE
 
     sim = solve_ivp(    
@@ -40,4 +43,9 @@ def simulator(parameters):
         t_eval = data['t-OD'][:,0] # see t_eval keyword argument above 
     )
 
-    return np.array([sim.t, sim.y[0]]).transpose()
+    sim_array = np.array([sim.t, sim.y[0]]).transpose()
+    
+    # Return as Dataset to match expected format
+    sim_dataset['t-OD'] = sim_array
+    
+    return sim_dataset

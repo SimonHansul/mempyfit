@@ -27,4 +27,7 @@ class Parameters:
 
     def __getitem__(self, name):
         return self.values[self._index[name]]
+    
+    def __setitem__(self, name, value):
+        self.values[self._index[name]] = value
         

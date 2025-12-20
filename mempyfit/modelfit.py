@@ -9,7 +9,12 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from .error_models import sumofsquares
+from .dataset import Dataset
+
 class ModelFit:
+
+    #### ---- Initialization of a generic ModelFit object --- ####
 
     def __init__(self):
 
@@ -23,6 +28,50 @@ class ModelFit:
         self.optimization_result = None
         self.abc_history = None
         self.accepted = None
+    
+    #### ---- Definition of complete loss / likelihood functions ---- ###
+    
+    def define_loss(self):
+        
+        error_models = self.data.error_models
+        error_models_closured = []
+        k = np.sum(self.parameters.free)
+
+        # iterate over all error models
+        for error_model in error_models:
+            
+            # check if we need to encapsulate additional input arguments
+             
+            if error_model == sumofsquares:
+                error_models_closured.append(error_model)
+
+            elif error_model == negloglike:
+                def errmod_close(sim, obs):
+                    return negloglike(sim, obs, k)
+                error_models_closured.append(errmod_close)
+
+            else: 
+                raise(ValueError(f'Error model not implemented for automatic loss generation: {error_model}'))
+            
+
+        def lossfun(sim: Dataset, obs: Dataset):
+
+            lossval = 0
+            # TODO: add weight functionality
+            for (i,nm) in enumerate(obs.names):
+                lossval += error_models_closured[i](sim[nm], obs[nm])
+            return lossval
+
+        self.loss = lossfun
+
+        
+
+
+             
+
+
+    #### ---- Generic plotting of priors ---- ####
+    # TODO: this should live somewhere else, e.g. an pyABCFit subclass
 
     def plot_priors(self, **kwargs):
         """
@@ -46,13 +95,7 @@ class ModelFit:
 
         return fig, ax
     
-    def define_loss(self):
-        
-        names = fit.data.names
-    
 
-        def loss(sim, obs):
-            for nm in fit.data.names:
     
     def prior_sample(self):
         """
