@@ -1,4 +1,4 @@
-# Defines the ModelFit class
+# Defines the FittingProblem class
 
 import numpy as np
 from scipy.optimize import minimize
@@ -9,7 +9,12 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-class ModelFit:
+from .error_models import sumofsquares
+from .dataset import Dataset
+
+class FittingProblem:
+
+    #### ---- Initialization of a generic FittingProblem object --- ####
 
     def __init__(self):
 
@@ -23,6 +28,47 @@ class ModelFit:
         self.optimization_result = None
         self.abc_history = None
         self.accepted = None
+    
+    #### ---- Definition of complete loss / likelihood functions ---- ###
+    
+    def define_loss(self):
+        
+        error_models = self.data.error_models
+        error_models_closured = []
+        k = np.sum(self.parameters.free)
+
+        # iterate over all error models
+        for error_model in error_models:
+            
+            # check if we need to encapsulate additional input arguments
+             
+            if error_model == sumofsquares:
+                error_models_closured.append(error_model)
+
+            elif error_model == negloglike:
+                def errmod_close(sim, obs):
+                    return negloglike(sim, obs, k)
+                error_models_closured.append(errmod_close)
+
+            else: 
+                raise(ValueError(f'Error model not implemented for automatic loss generation: {error_model}'))
+            
+
+        def lossfun(sim: Dataset, obs: Dataset):
+
+            lossval = 0
+            # TODO: add weight functionality
+            for (i,nm) in enumerate(obs.names):
+                lossval += error_models_closured[i](sim[nm], obs[nm])
+            return lossval
+
+        self.loss = lossfun
+
+    def simulate(self):
+        return self.simulator(self.parameters)
+
+    #### ---- Generic plotting of priors ---- ####
+    # TODO: this should live somewhere else, e.g. an pyABCFit subclass
 
     def plot_priors(self, **kwargs):
         """
@@ -45,6 +91,8 @@ class ModelFit:
         sns.despine()
 
         return fig, ax
+    
+
     
     def prior_sample(self):
         """
@@ -152,48 +200,6 @@ class ModelFit:
             sim = self.simulator(self.posterior_sample())
             self.retrodictions.append(sim)
 
-    def define_objective_function(self, for_use_with = 'scipy'):
-        
-        if for_use_with == 'scipy':
-            def objective_function(parvals):
-                """
-                Objective function for the model contained in a ModelFit object
-                """
-                
-                pfit = self.intguess.copy()
-                pfit.update(dict(zip(self.intguess.keys(), parvals)))
-                
-                # calling the simulator function
-
-                prediction = self.simulator(pfit)
-
-                # calling the loss function
-                
-                return self.loss(prediction, self.data)
-            
-            return objective_function
-        
-        if for_use_with == 'lmfit':
-            def objective_function(parvals):
-                """
-                Objective function for the model contained in a ModelFit object
-                """
-
-                parslist = [param.value for param in list(parvals.values())]
-                
-                pfit = self.intguess.copy()
-                pfit.update(dict(zip(self.intguess.keys(), parslist)))
-    
-                # calling the simulator function
-
-                prediction = self.simulator(pfit)
-
-                # calling the loss function
-                
-                return self.loss(prediction, self.data)
-            
-            return objective_function
-
     def extract_point_estimate(self):
         """
         Extract point estimate from pyabc results.
@@ -204,31 +210,9 @@ class ModelFit:
             np.array(self.accepted.loc[self.accepted.weight.argmax()]) 
         ))
 
-    def run_optimization(
-            self,
-            method = 'Nelder-Mead',
-            **kwargs
-        ): 
-        """ 
-        Apply an optimization algorithm using `scipy.optimize.minimize`.
-        """
-
-        objective_function = self.define_objective_function()
-
-        opt = minimize(
-            objective_function, # objective function 
-            list(self.intguess.values()), # initial guesses
-            method = method, # optimization method to use
-            **kwargs
-            )
-               
-        print(f"Fitted model using {method} method. Results stored in `optimization_result`")
-
-        self.optimization_result = opt
-        self.p_opt = dict(zip(self.intguess.keys(), opt.x))
     
     def __repr__(self):
-        return f"ModelFit(data={self.data}, simulator={self.simulator}, prior={self.prior}, intguess={self.intguess})"
+        return f"FittingProblem(data={self.data}, simulator={self.simulator}, prior={self.prior}, intguess={self.intguess})"
 
 def SSQ(D, P):
 

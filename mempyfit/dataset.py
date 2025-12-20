@@ -157,6 +157,38 @@ class Dataset(AbstractDataset):
         
         return new_dataset
 
+    def dump(self, container):
+        """
+        Create an independent deep copy of the Dataset with all current values.
+        Useful for storing snapshots of simulation results.
+        """
+        new_dataset = Dataset(metadata=self.metadata.copy())
+        
+        for i, name in enumerate(self.names):
+            value = self.values[i]
+            
+            # Create a copy of the value
+            if isinstance(value, np.ndarray):
+                copied_value = value.copy()
+            else:
+                copied_value = value  # scalars don't need copying
+            
+            new_dataset.add(
+                name=name,
+                value=copied_value,
+                units=self.units[i].copy() if isinstance(self.units[i], list) else self.units[i],
+                labels=self.labels[i].copy() if isinstance(self.labels[i], list) else self.labels[i],
+                error_model=self.error_models[i],
+                title=self.titles[i],
+                temperature=self.temperatures[i],
+                temperature_unit=self.temperature_units[i],
+                dimensionality_type=self.dimensionality_types[i],
+                bibkey=self.bibkeys[i],
+                comment=self.comments[i]
+            )
+        
+        container.add(new_dataset)
+
     def getinfo(self, name: str) -> OrderedDict:
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
@@ -184,7 +216,7 @@ class Dataset(AbstractDataset):
             )
         return "\n".join(out)
     
-    def plot(self, name, ax = None):
+    def plot(self, name, ax = None, kind = 'observation'):
 
         if not ax:
             fig = plt.figure()
@@ -195,18 +227,40 @@ class Dataset(AbstractDataset):
         info = self.getinfo(name)
         value = info['value']
 
-        ax.scatter(value[:,0], value[:,1])
+        if kind=='observation': 
+            ax.scatter(value[:,0], value[:,1])
+        elif kind=='simulation':
+            ax.plot(value[:,0], value[:,1])
+        else:
+            raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
         ax.set(
             xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
             ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
             title = info['title']
             )
         
-        if not fig:
-            return ax
-        else:
+        if fig:
             return fig, ax
         
-                
-            
+
+@dataclass  
+class Container:
+
+    """
+    A simple Container class to store multiple datasets together.
+    Useful to store simulation results.  
+
+    Initialize with `container = Container()`.
     
+    Use 
+    
+    `dataset.dump(container)`
+
+    to dump a copy of a dataset into the container.
+    """
+
+    datasets: list[Dataset] = field(default_factory=list)
+
+    def add(container, dataset):
+        self.datasets.append(dataset)
+

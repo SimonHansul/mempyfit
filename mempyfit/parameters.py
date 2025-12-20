@@ -1,4 +1,7 @@
 from dataclasses import dataclass, field
+from multipledispatch import dispatch
+import numpy as np
+
 @dataclass
 class Parameters:
     names: list[str]
@@ -30,4 +33,21 @@ class Parameters:
     
     def __setitem__(self, name, value):
         self.values[self._index[name]] = value
+
+    @dispatch(list, list)
+    def assign(self, names, values):
+        for (name,value) in zip(names, values):
+            self[name] = value
+
+    @dispatch(tuple, np.ndarray)
+    def assign(self, names, values):
+        for (name,value) in zip(names, values):
+            self[name] = value
+        
+    @dispatch(list, np.ndarray)
+    def assign(self, names, values):
+        for (name,value) in zip(names, values):
+            self[name] = value
+        
+
         
