@@ -1,3 +1,5 @@
+from scipy import optimize
+import numpy as np
 from scipy.optimize import minimize
 from .fitting_problem import FittingProblem
 from multipledispatch import dispatch
@@ -11,9 +13,11 @@ class ScipyBackend:
         )
 
         self.fitted_param_names  = list(fitted_param_names) # extract names of fitted parameters
+        self.k = len(fitted_param_names)
         self.intguess = list(fitted_param_values) # use currently assigned parameter values as initial guess
         self.estimates = None # estimates will be assigned once we solved the problem
         self.prob = prob # store a reference to the fitting problem
+        self.bounds = optimize.Bounds(lb = np.zeros(self.k)) # by default, assume parameters to positive
 
         #### ---- Define the objective function to be compatible with scipy ---- ####
 
@@ -35,6 +39,7 @@ class ScipyBackend:
             self.objective_function, # objective function 
             self.intguess, # initial guesses
             method = method, # optimization method to use
+            bounds = self.bounds,
             **kwargs
             )
             
