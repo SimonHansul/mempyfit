@@ -2,7 +2,9 @@ from scipy import optimize
 import numpy as np
 from scipy.optimize import minimize
 from .fitting_problem import FittingProblem
-from multipledispatch import dispatch
+import matplotlib.pyplot as plt
+
+from pprint import pp
 
 
 class ScipyBackend:
@@ -35,14 +37,25 @@ class ScipyBackend:
 
     def run(self, method = 'Nelder-Mead', **kwargs):
 
-        opt = minimize(
-            self.objective_function, # objective function 
-            self.intguess, # initial guesses
-            method = method, # optimization method to use
-            bounds = self.bounds,
-            **kwargs
-            )
-            
+        if method != 'differential_evolution':
+
+            opt = minimize(
+                self.objective_function, # objective function 
+                self.intguess, # initial guesses
+                method = method, # optimization method to use
+                bounds = self.bounds,
+                **kwargs
+                )
+        else:
+
+            if (np.inf in self.bounds.ub) | (np.inf in self.bounds.lb):
+                raise(ValueError("Need non-finite bounds for `differential_evolution method`."))
+
+            opt = optimize.differential_evolution(
+                self.objective_function, 
+                bounds=self.bounds
+                )
+                        
         print(f"Fitted model using {method} method.")
 
         self.estimates = opt.x
@@ -55,6 +68,45 @@ class ScipyBackend:
         sim = self.prob.simulate()
 
         return sim
+    
+    def plot_fitted_sim(self, fig_kwargs = {'figsize' : (6, 4)}): 
+            
+        data = self.prob.data
+        fitted_sim = self.get_fitted_sim()
+
+        num_entries = len(data.names)
+        ncols = np.minimum(num_entries, 4)
+        nrows = int(np.ceil(num_entries/4))
+
+        fig, ax = plt.subplots(ncols=ncols, nrows=nrows, **fig_kwargs)
+        ax = np.ravel(ax)
+
+        for (i,name) in enumerate(data.names):
+
+            data.plot(name, ax = ax[i])
+            fitted_sim.plot(name, ax = ax[i], kind = 'simulation')
+
+        return fig, ax
+    
+
+    # TODO: add optional output_dir to store all results
+    def report(self, fig_kwargs = {'figsize' : (6, 4)}): 
+        print()
+        print('#### ---- Estimated parameters ---- ####')
+        print()
+        estimates = dict(zip(self.fitted_param_names, self.estimates))
+        pp(estimates)
+        print()
+
+        print('### ---- Visual check ---- ####')
+
+        fig, ax = self.plot_fitted_sim(fig_kwargs=fig_kwargs)
+
+        report = {'estimates' : estimates, 'figure' : (fig,ax)}
+
+        return report
+
+
 
 
 

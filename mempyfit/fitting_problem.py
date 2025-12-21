@@ -66,6 +66,7 @@ class FittingProblem:
 
     def simulate(self):
         return self.simulator(self.parameters)
+    
 
     #### ---- Generic plotting of priors ---- ####
     # TODO: this should live somewhere else, e.g. an pyABCFit subclass

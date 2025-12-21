@@ -19,6 +19,7 @@ def dNdt(t, y, p: dict):
 tmin = np.min(data['t-OD'][:,0])
 tmax = np.max(data['t-OD'][:,0])+1
 
+sim_dataset = data.empty_like()
 
 def simulator(parameters):
 
@@ -32,7 +33,6 @@ def simulator(parameters):
     -t_eval: time-points to be evaluated by the ODE solver. By default, the unique time-points in a globally defined data frame called `data`
     """
     
-    sim_dataset = data.empty_like()
     y0 = [data['t-OD'][0,1]] # initial conditions for the ODE
 
     sim = solve_ivp(    
