@@ -27,6 +27,10 @@ def negloglike(sim, obs, k):
     sigma_unbiased = sigma * np.sqrt((n - k) / n)
     return sum(n.log(norm.pdf(obs[:,-1], mean = pred[:,-1], scale = sigma_unbiased)))
 
-
 @dispatch(np.ndarray, np.ndarray, Real)
-def euclidean(si)
+def euclidean(obs, sim, scale): 
+    return np.sqrt(np.sum((obs / scale - sim / scale)**2))
+
+@dispatch(Real, Real, Real)
+def euclidean(obs, sim, scale):
+    return np.sqrt((obs/scale - sim/scale)**2)
