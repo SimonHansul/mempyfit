@@ -1,9 +1,10 @@
 README.md
 setup.py
-mempyfit/ModelFit.py
+mempyfit/FittingProblem.py
 mempyfit/__init__.py
 mempyfit/dataset.py
-mempyfit/modelfit.py
+mempyfit/FittingProblem.py
+mempyfit/parameters.py
 mempyfit.egg-info/PKG-INFO
 mempyfit.egg-info/SOURCES.txt
 mempyfit.egg-info/dependency_links.txt

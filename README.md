@@ -1,7 +1,13 @@
 # mempyfit
 
-This package is part of the `mempy` ecosystem. <br>
-The goal of this package is to provide basic functioanlity to fit (DEB-)TKTD models using either local optimization, global optimization or likelihood-free Bayesian inference.
+The goal of this package is to provide basic functioanlity to prob dynamic ecotoxicological models using different methods.
+
+This package has primarily been developed for teaching purposes at University Osnabrück and for the PhD school *Dynamic Modelling of Toxic Effects* hosted by University of Copenhagen. 
+
+The functionality of the package is currently mostly limited to what is useful for these courses, although I can envision further development in the future.
+For a more comprehensive package, consider checking out [pymob](https://github.com/flo-schu/pymob). 
+
+Contributions are welcome (open an Issue or contact me directly). 
 
 ## Installation
 
@@ -14,10 +20,10 @@ pip install git+https://github.com/simonhansul/mempyfit
 ## Quickstart
 
 
-`mempyfit` defines a `ModelFit` class, which can be initialized without arguments:
+`mempyfit` defines a `FittingProblem` class, which can be initialized without arguments:
 
 ```Python
-f = ModelFit()
+f = FittingProblem()
 ```
 
 Then, we add the information required for the fitting process. <br>
@@ -43,7 +49,7 @@ f.define_lognorm_prior(medians, sigma = 1)
 
 The `define_lognorm_prior` method will then apply the same log-variance to all parameters. <br> 
 
-Now we can execute the model fit using either one of two methods:
+Now we can execute the model prob using either one of two methods:
 
 ```Python
 f.run_optimization() # run local optimization

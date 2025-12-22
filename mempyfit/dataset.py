@@ -3,9 +3,12 @@ from enum import Enum, auto
 from collections import OrderedDict
 import numpy as np
 import warnings
+from multipledispatch import dispatch
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+from .error_models import sumofsquares
 
 
 class AbstractDataset:
@@ -16,12 +19,29 @@ class AbstractDataset:
 class AbstractDataset:
     pass
 
-
 class DimensionalityType(Enum):
     ZEROVARIATE  = auto()
     UNIVARIATE   = auto()
     MULTIVARIATE = auto()
 
+@dispatch(np.ndarray)
+def get_n(ar):
+    return np.shape(ar)[0]
+
+@dispatch(np.ndarray)
+def make_empty_like(value):
+    """Create empty array with same shape and dtype."""
+    return np.empty_like(value)
+
+@dispatch((int, float, np.number))
+def make_empty_like(value):
+    """Return NaN for scalar values."""
+    return np.nan
+
+@dispatch(object)
+def make_empty_like(value):
+    """Fallback for other types - return as is."""
+    return value
 
 @dataclass
 class Dataset(AbstractDataset):
@@ -30,6 +50,8 @@ class Dataset(AbstractDataset):
     values: list = field(default_factory=list)  # could be numbers or np.ndarray
     units: list[list[str]] = field(default_factory=list)
     labels: list[list[str]] = field(default_factory=list)
+    error_models: list[callable] = field(default_factory=list)
+    titles: list[list[str]] = field(default_factory=list)
     temperatures: list[float] = field(default_factory=list)
     temperature_units: list[str] = field(default_factory=list)
     dimensionality_types: list[DimensionalityType] = field(default_factory=list)
@@ -42,6 +64,8 @@ class Dataset(AbstractDataset):
         value,
         units,
         labels,
+        error_model: callable = sumofsquares, 
+        title: str = "",
         temperature: float = np.nan,
         temperature_unit: str = "K",
         dimensionality_type: DimensionalityType | None = None,
@@ -83,7 +107,9 @@ class Dataset(AbstractDataset):
         self.names.append(name)
         self.values.append(value)
         self.units.append(units)
+        self.error_models.append(error_model)
         self.labels.append(labels)
+        self.titles.append(title)
         self.temperatures.append(temperature)
         self.temperature_units.append(temperature_unit)
         self.dimensionality_types.append(dimensionality_type)
@@ -102,6 +128,67 @@ class Dataset(AbstractDataset):
         idx = self.names.index(name)
         self.values[idx] = value
 
+    def empty_like(self):
+        """
+        Create a new Dataset with the same structure but with empty arrays.
+        Scalar values remain as NaN, arrays are replaced with empty_like versions.
+        """
+        new_dataset = Dataset(metadata=self.metadata.copy())
+        
+        for i, name in enumerate(self.names):
+            value = self.values[i]
+            
+            # Create empty version using dispatched function
+            empty_value = make_empty_like(value)
+            
+            new_dataset.add(
+                name=name,
+                value=empty_value,
+                units=self.units[i].copy() if isinstance(self.units[i], list) else self.units[i],
+                labels=self.labels[i].copy() if isinstance(self.labels[i], list) else self.labels[i],
+                error_model=self.error_models[i],
+                title=self.titles[i],
+                temperature=self.temperatures[i],
+                temperature_unit=self.temperature_units[i],
+                dimensionality_type=self.dimensionality_types[i],
+                bibkey=self.bibkeys[i],
+                comment=self.comments[i]
+            )
+        
+        return new_dataset
+
+    def dump(self, container):
+        """
+        Create an independent deep copy of the Dataset with all current values.
+        Useful for storing snapshots of simulation results.
+        """
+        new_dataset = Dataset(metadata=self.metadata.copy())
+        
+        for i, name in enumerate(self.names):
+            value = self.values[i]
+            
+            # Create a copy of the value
+            if isinstance(value, np.ndarray):
+                copied_value = value.copy()
+            else:
+                copied_value = value  # scalars don't need copying
+            
+            new_dataset.add(
+                name=name,
+                value=copied_value,
+                units=self.units[i].copy() if isinstance(self.units[i], list) else self.units[i],
+                labels=self.labels[i].copy() if isinstance(self.labels[i], list) else self.labels[i],
+                error_model=self.error_models[i],
+                title=self.titles[i],
+                temperature=self.temperatures[i],
+                temperature_unit=self.temperature_units[i],
+                dimensionality_type=self.dimensionality_types[i],
+                bibkey=self.bibkeys[i],
+                comment=self.comments[i]
+            )
+        
+        container.add(new_dataset)
+
     def getinfo(self, name: str) -> OrderedDict:
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
@@ -111,6 +198,7 @@ class Dataset(AbstractDataset):
             ("value", self.values[idx]),
             ("units", self.units[idx]),
             ("labels", self.labels[idx]),
+            ("title", self.titles[idx]),
             ("temperature", self.temperatures[idx]),
             ("temperature_units", self.temperature_units[idx]),
             ("dimensionality_type", self.dimensionality_types[idx].name),
@@ -128,13 +216,51 @@ class Dataset(AbstractDataset):
             )
         return "\n".join(out)
     
-    def plot(self, name, ax = None):
-    
+    def plot(self, name, ax = None, kind = 'observation'):
+
+        if not ax:
+            fig = plt.figure()
+            ax = fig.gca()
+        else:
+            fig = None
+
         info = self.getinfo(name)
-        data = info["value"]
-    
-        return plot_data(data, ax)
-                
-            
+        value = info['value']
+
+        if kind=='observation': 
+            ax.scatter(value[:,0], value[:,1])
+        elif kind=='simulation':
+            ax.plot(value[:,0], value[:,1])
+        else:
+            raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
+        ax.set(
+            xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
+            ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
+            title = info['title']
+            )
         
+        if fig:
+            return fig, ax
+        
+
+@dataclass  
+class Container:
+
+    """
+    A simple Container class to store multiple datasets together.
+    Useful to store simulation results.  
+
+    Initialize with `container = Container()`.
+    
+    Use 
+    
+    `dataset.dump(container)`
+
+    to dump a copy of a dataset into the container.
+    """
+
+    datasets: list[Dataset] = field(default_factory=list)
+
+    def add(container, dataset):
+        self.datasets.append(dataset)
 

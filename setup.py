@@ -18,7 +18,8 @@ setup(
         'tqdm',
         'yml',
         'matplotlib',
-        'seaborn'
+        'seaborn',
+        'multipledispatch'
         ],
     classifiers=[
         'Programming Language :: Python :: 3',
