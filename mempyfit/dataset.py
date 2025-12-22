@@ -28,6 +28,18 @@ class DimensionalityType(Enum):
 def get_n(ar):
     return np.shape(ar)[0]
 
+@distpatch(np.ndarray)
+def get_max(ar):
+    return np.max(ar[:,-1])
+
+@dispatch(float)
+def get_max(x):
+    return x
+
+@dispatch(int)
+def get_max (x):
+    return x
+
 @dispatch(np.ndarray)
 def make_empty_like(value):
     """Create empty array with same shape and dtype."""

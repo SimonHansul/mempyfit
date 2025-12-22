@@ -1,5 +1,6 @@
 from multipledispatch import dispatch
 import numpy as np
+from numbers import Real
 
 @dispatch(np.ndarray, np.ndarray)
 def sumofsquares(sim, obs):
@@ -25,3 +26,7 @@ def negloglike(sim, obs, k):
     n = get_n(obs)
     sigma_unbiased = sigma * np.sqrt((n - k) / n)
     return sum(n.log(norm.pdf(obs[:,-1], mean = pred[:,-1], scale = sigma_unbiased)))
+
+
+@dispatch(np.ndarray, np.ndarray, Real)
+def euclidean(si)

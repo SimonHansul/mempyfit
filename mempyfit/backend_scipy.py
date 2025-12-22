@@ -2,12 +2,14 @@ from scipy import optimize
 import numpy as np
 from scipy.optimize import minimize
 from .fitting_problem import FittingProblem
+from .backend_abstract import FittingBackend
 import matplotlib.pyplot as plt
 
 from pprint import pp
 
 
-class ScipyBackend:
+
+class ScipyBackend(FittingBackend):
     def __init__(self, prob: FittingProblem):
 
         fitted_param_names, fitted_param_values = zip(
