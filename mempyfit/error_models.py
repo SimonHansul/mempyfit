@@ -13,7 +13,7 @@ def sumofsquares(sim, obs):
 @dispatch(np.ndarray, np.ndarray)
 def negloglike(sim, obs, k):
     """
-    Negative log-likelihood for numpy arrays, using an unbiased estimate of the residual variance.
+    Negative log-likelihood for numpy arrays, usbng an unbiased estimate of the residual variance.
     We assume the last column to contain the response variable.
 
     References

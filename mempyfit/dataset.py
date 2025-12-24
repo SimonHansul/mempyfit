@@ -28,7 +28,7 @@ class DimensionalityType(Enum):
 def get_n(ar):
     return np.shape(ar)[0]
 
-@distpatch(np.ndarray)
+@dispatch(np.ndarray)
 def get_max(ar):
     return np.max(ar[:,-1])
 

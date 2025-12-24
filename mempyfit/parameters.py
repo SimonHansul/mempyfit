@@ -48,6 +48,11 @@ class Parameters:
     def assign(self, names, values):
         for (name,value) in zip(names, values):
             self[name] = value
+
+    @dispatch(dict)
+    def assign(self, p): 
+        for (name,value) in p.items():
+            self[name] = value
         
 
         

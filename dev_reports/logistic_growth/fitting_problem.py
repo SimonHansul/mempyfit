@@ -22,9 +22,8 @@ class LogisticFit(FittingProblem):
     sol = prob.solve()
     ```
 
-    
     """
-
+    
     def __init__(self):
         super().__init__()
         self.data = data
@@ -34,6 +33,11 @@ class LogisticFit(FittingProblem):
 
 
     def solve(self, Backend = ScipyBackend, method = 'Nelder-Mead', **kwargs):
+        """
+        One possible way to solve the logistic growth fitting problem, 
+        performing local optimization via the Nelder-Mead method.
+        """
+
         backend = Backend(self)
         backend.run(method = method, **kwargs)
 
