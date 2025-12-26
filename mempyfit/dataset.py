@@ -74,8 +74,8 @@ class Dataset(AbstractDataset):
         self,
         name: str,
         value,
-        units,
-        labels,
+        units = None,
+        labels = None,
         error_model: callable = sumofsquares, 
         title: str = "",
         temperature: float = np.nan,
@@ -94,9 +94,7 @@ class Dataset(AbstractDataset):
         """
 
         # Check temperature consistency
-        if np.isnan(temperature) and all("temp" not in l for l in np.atleast_1d(labels)):
-            warnings.warn(f"No temperature given for {name} and no temperature found in labels.")
-
+        
         if not np.isnan(temperature) and (temperature_unit == "K") and (temperature < 200):
             raise ValueError(f"Implausible temperature {temperature} K given for {name}")
 
@@ -228,7 +226,7 @@ class Dataset(AbstractDataset):
             )
         return "\n".join(out)
     
-    def plot(self, name, ax = None, kind = 'observation'):
+    def plot(self, name, ax = None, kind = 'observation', **kwargs):
 
         if not ax:
             fig = plt.figure()
@@ -240,9 +238,9 @@ class Dataset(AbstractDataset):
         value = info['value']
 
         if kind=='observation': 
-            ax.scatter(value[:,0], value[:,1])
+            ax.scatter(value[:,0], value[:,1], **kwargs)
         elif kind=='simulation':
-            ax.plot(value[:,0], value[:,1])
+            ax.plot(value[:,0], value[:,1], **kwargs)
         else:
             raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
         ax.set(
@@ -260,6 +258,7 @@ class Container:
 
     """
     A simple Container class to store multiple datasets together.
+    Essentially a list of datasets. 
     Useful to store simulation results.  
 
     Initialize with `container = Container()`.
@@ -273,6 +272,21 @@ class Container:
 
     datasets: list[Dataset] = field(default_factory=list)
 
-    def add(container, dataset):
+    def add(self, dataset):
         self.datasets.append(dataset)
 
+
+@dispatch(dict, Dataset)
+def as_dataset(d: dict, parent: Dataset):
+    data = Dataset()
+    
+    for (key,val) in d.items():
+        info = parent.getinfo(key)
+        data.add(
+            name=key, 
+            value=val,
+            units=info['units'], 
+            labels=info['labels']
+            )
+
+    return data

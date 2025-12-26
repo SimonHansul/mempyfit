@@ -2,8 +2,8 @@ from .data import *
 from .parameters import *
 from scipy.integrate import solve_ivp
 from mempyfit import Dataset
-  
-def dNdt(t, y, p: dict):
+
+def dNdt(t, y, p):
     """
     Definition of the log-logistic ODE. 
 
@@ -14,10 +14,13 @@ def dNdt(t, y, p: dict):
     
     N = y[0] # unpacking state variables
 
-    return p['r']*N*(1-(N/p['K'])) 
+    return p['r'] * N*(1-(N/p['K']))
 
+# observed time span
 tmin = np.min(data['t-OD'][:,0])
-tmax = np.max(data['t-OD'][:,0])+1
+tmax = np.max(data['t-OD'][:,0]) + 1
+
+N0 = data['t-OD'][0,1] # initial optical density
 
 sim_dataset = data.empty_like()
 
@@ -33,7 +36,7 @@ def simulator(parameters):
     -t_eval: time-points to be evaluated by the ODE solver. By default, the unique time-points in a globally defined data frame called `data`
     """
     
-    y0 = [data['t-OD'][0,1]] # initial conditions for the ODE
+    y0 = [N0] # initial conditions for the ODE
 
     sim = solve_ivp(    
         dNdt,

@@ -28,6 +28,9 @@ class Parameters:
         # lookup table for faster indexing
         self._index = {name: i for i, name in enumerate(self.names)}
 
+    def as_dict(self):
+        return dict(zip(self.names, self.values))
+
     def __getitem__(self, name):
         return self.values[self._index[name]]
     

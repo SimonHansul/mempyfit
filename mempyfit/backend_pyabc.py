@@ -1,12 +1,15 @@
 import pyabc
 from .fitting_problem import FittingProblem
 from .backend_abstract import FittingBackend
+from .error_models import euclidean
 from .dataset import *
+from .dataset import as_dataset
 import matplotlib.pyplot as plt
 import numpy as np
 from numbers import Real
 import os
 import tempfile
+import pandas as pd
 
 class pyABCBackend(FittingBackend):
 
@@ -20,6 +23,15 @@ class pyABCBackend(FittingBackend):
 
         self.prob = prob
 
+        # TODO: this could live in the generic FittingBackend class
+        fitted_param_names, fitted_param_values = zip(
+            *[(n, v) for f, n, v in zip(prob.parameters.free, prob.parameters.names, prob.parameters.values) if f]
+        )
+
+        self.fitted_param_names = fitted_param_names
+        self.fitted_param_values = fitted_param_values
+
+
         # if priors were given, assign them
         if priors:
             self.priors = priors
@@ -31,20 +43,18 @@ class pyABCBackend(FittingBackend):
                 )
             
         # data and simulations need to be wrapped into a dict to accomodate pyabc
-        data_abc = dict(zip(prob.data.names, prob.data.values))
+        self.data_abc = dict(zip(prob.data.names, prob.data.values))
 
         def sim_abc(p): 
             self.prob.parameters.assign(p)
             sim = self.prob.simulator(self.prob.parameters)
             return dict(zip(sim.names, sim.values))
         
-        # it should not be necessary to change the simulator
         self.sim_abc = sim_abc
-        self.data_abc = data_abc
         self.scaling_function = scaling_function
         self.distance_functions = [] # distance functions for different parts of the data
         self.distance_function = None # distance function for the whole data
-        self.dist_abc = self.define_eculidean_distance()
+        self.define_eculidean_distance()
         self.scaling_factors = []
         self.estimates = None
         self.abc_history = None 
@@ -71,16 +81,16 @@ class pyABCBackend(FittingBackend):
         def distfun(sim: Dataset, obs: Dataset):
             distval = 0
             # TODO: add weight functionality
-            for (val,key) in obs.items():
-                distval += distance_functions[i](sim[key], val)
+            for (i,key) in enumerate(obs.keys()):
+                distval += distance_functions[i](sim[key], obs[key])
             return distval
         
-        self.distance_function = distfun
+        self.dist_abc = distfun
         self.distance_functions = distance_functions
         self.scaling_factors = scaling_factors
         self.k = k
 
-    def plot_priors(self, **kwargs):
+    def plot_priors(self, linecolor = 'black', linestyle = 'solid', **kwargs):
         """
         Plot pdfs of the prior distributions. Kwargs are passed down to the plot command.
         """
@@ -88,13 +98,13 @@ class pyABCBackend(FittingBackend):
         nrows = int(np.ceil(len(self.priors.keys())/3))
         ncols = np.minimum(3, len(self.priors.keys()))
 
-        fig, ax = plt.subplots(nrows = nrows, ncols = ncols, figsize = (12,6*nrows))
+        fig, ax = plt.subplots(nrows = nrows, ncols = ncols,  **kwargs)
         ax = np.ravel(ax)
 
         for i,p in enumerate(self.priors.keys()):
 
             xrange = np.geomspace(self.priors[p].ppf(0.0001),self.priors[p].ppf(0.9999), 10000)
-            ax[i].plot(xrange, self.priors[p].pdf(xrange), **kwargs)
+            ax[i].plot(xrange, self.priors[p].pdf(xrange), color=linecolor, linestyle=linestyle)
             ax[i].set(xlabel = p)
 
         ax[0].set(ylabel = "Prior density")
@@ -115,15 +125,11 @@ class pyABCBackend(FittingBackend):
         Define log-normal priors with median equal to initial guess and constant sigma (SD of log values).
         """
 
-        fitted_param_names, fitted_param_values = zip(
-            *[(n, v) for f, n, v in zip(prob.parameters.free, prob.parameters.names, prob.parameters.values) if f]
-        )
-
         # construct a log-normal distribution for each of the free parameters
-        prior_dists = [pyabc.RV("lognorm", sigma, 0, val) for val in fitted_param_values]
+        prior_dists = [pyabc.RV("lognorm", sigma, 0, val) for val in self.fitted_param_values]
         
         # pack the distributions into a `pyabc.Disribution` object
-        self.priors = pyabc.Distribution(dict(zip(fitted_param_names, prior_dists)))
+        self.priors = pyabc.Distribution(dict(zip(self.fitted_param_names, prior_dists)))
 
     def prior_predictive_check(self, n = 100):
         """
@@ -189,7 +195,7 @@ class pyABCBackend(FittingBackend):
         self.retrodictions = []
 
         for i in range(n): 
-            sim = self.simulator(self.posterior_sample())
+            sim = self.sim_abc(self.posterior_sample())
             self.retrodictions.append(sim)
 
     def extract_point_estimate(self):
@@ -201,5 +207,102 @@ class pyABCBackend(FittingBackend):
             list(self.priors.keys()),
             np.array(self.accepted.loc[self.accepted.weight.argmax()]) 
         ))
+    
+    def report(
+            self, 
+            figkwargs_marginaldists = {'figsize' : (6, 4)}, 
+            figkwargs_vrc = {'figsize' : (6,4)},
+            n_retrodict = 100,
+            ): 
+        print()
+        print('#### ---- Posterior distributions ---- ####')
+        print()
+        #marginaldists = self.plot_priors(**figkwargs_marginaldists)
+        #fig, ax = marginaldists
+        #
+        #sns.histplot(self.accepted, x =  'r', weights = 'weight', ax = ax[0], kde = True)
+        #sns.histplot(self.accepted, x =  'K', weights = 'weight', ax = ax[1], kde = True)
+        #
+        #plt.show()
+        print()
+
+        marginaldists = self.plot_priors(label = "Prior", linecolor = "black", linestyle = "--", **figkwargs_marginaldists)
+        fig, ax = marginaldists 
+
+        for t in range(self.abc_history.max_t + 1):
+            df, w = self.abc_history.get_distribution(m=0, t=t)
+
+            for (i,par) in enumerate(self.priors.keys()):
+                pyabc.visualization.plot_kde_1d(
+                    df,
+                    w,
+                    xmin=0,
+                    xmax=5,
+                    x=par,
+                    xname=par,
+                    ax=ax[i],
+                    label=f"Posterior at step {t}",
+                )
+
+        ax[0].legend()
+        plt.show()
+
+        print('')
+        print('### --- Posterior summary --- ###')
+
+        medians = []
+        p05s = []
+        p25s = []
+        p75s = []
+        p95s =  []
+ 
+        for param in self.priors.keys():
+
+            median = pyabc.weighted_median(self.accepted[param], weights = self.accepted.weight)
+
+            p05 = pyabc.weighted_quantile(self.accepted[param], weights = self.accepted.weight, alpha = 0.05)
+            p25 = pyabc.weighted_quantile(self.accepted[param], weights = self.accepted.weight, alpha = 0.25)
+            p75 = pyabc.weighted_quantile(self.accepted[param], weights = self.accepted.weight, alpha = 0.75)
+            p95 = pyabc.weighted_quantile(self.accepted[param], weights = self.accepted.weight, alpha = 0.95) 
+            
+            medians.append(median)
+            p05s.append(p05)
+            p25s.append(p25)
+            p75s.append(p75)
+            p95s.append(p95)
+
+        posterior_summary = pd.DataFrame({
+            'param'  : self.priors.keys(),
+            'median' : medians, 
+            'p05' : p05s, 
+            'p25' : p25s, 
+            'p75' : p75s, 
+            'p95' : p95s
+        })
+
+        print(posterior_summary)
+        print('')
+
+        print('### ---- Visual check ---- ####')
+
+        self.retrodict(n_retrodict)
+
+        num_entries = len(self.prob.data.names)
+        ncols = np.minimum(num_entries, 4)
+        nrows = int(np.ceil(num_entries/4))
+
+        VPC = plt.subplots(ncols=ncols, nrows=nrows, **figkwargs_vrc)
+        fig, ax = VPC
+        ax = np.ravel(ax)
+
+        for (i,name) in enumerate(self.prob.data.names):
+            for r in self.retrodictions:
+                self.prob.data.plot(name, ax = ax[i])
+                as_dataset(r, self.prob.data).plot(name, ax = ax[i], kind = 'simulation', color = 'gray', alpha = 0.1)
+        #fig, ax = self.plot_fitted_sim(fig_kwargs=fig_kwargs)
+        report = {'marginaldists' : marginaldists, 'VPC' : (VPC), 'posterior_summary' : posterior_summary}
+
+        return report
+
 
     
