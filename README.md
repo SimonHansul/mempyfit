@@ -31,3 +31,4 @@ Usage is described in the example notebooks.
 ### v0.2.2
 
 - Update to pyABCBackend report method
+- Added pairplot method to pyABCBackend

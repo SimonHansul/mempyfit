@@ -5,6 +5,7 @@ from .error_models import euclidean
 from .dataset import *
 from .dataset import as_dataset
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 from numbers import Real
 import os
@@ -208,6 +209,20 @@ class pyABCBackend(FittingBackend):
             np.array(self.accepted.loc[self.accepted.weight.argmax()]) 
         ))
     
+    def pairplot(self):
+
+        fig = sns.pairplot(
+            self.accepted[list(self.priors.keys())], 
+            kind = 'kde',
+            diag_kind = 'kde', 
+            diag_kws = {'weights': self.accepted.weight}, 
+            corner = True
+            )
+        
+        plt.show()
+
+        return fig
+            
     def report(
             self, 
             figkwargs_marginaldists = {'figsize' : (6, 4)}, 
