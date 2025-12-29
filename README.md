@@ -16,3 +16,14 @@ pip install git+https://github.com/simonhansul/mempyfit
 ```
 
 Usage is described in the example notebooks.
+
+
+## Changelog
+
+### v0.2.0
+
+- Major update to the API. Introduced `FittingProblem` and `Backend` classes.
+
+### v0.2.1
+
+- Minor bugfix
