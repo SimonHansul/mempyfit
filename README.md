@@ -27,3 +27,7 @@ Usage is described in the example notebooks.
 ### v0.2.1
 
 - Minor bugfix
+
+### v0.2.2
+
+- Update to pyABCBackend report method

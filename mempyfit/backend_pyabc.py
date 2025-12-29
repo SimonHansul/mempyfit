@@ -233,11 +233,15 @@ class pyABCBackend(FittingBackend):
             df, w = self.abc_history.get_distribution(m=0, t=t)
 
             for (i,par) in enumerate(self.priors.keys()):
+
+                xmin = self.priors[i].ppf(0.0001)
+                xmax = self.priors[i].ppf(0.9999)
+
                 pyabc.visualization.plot_kde_1d(
                     df,
                     w,
-                    xmin=0,
-                    xmax=5,
+                    xmin=xmin,
+                    xmax=xmax,
                     x=par,
                     xname=par,
                     ax=ax[i],
