@@ -267,7 +267,7 @@ class pyABCBackend(FittingBackend):
         plt.show()
 
         print('')
-        print('### --- Posterior summary --- ###')
+        print('#### ---- Posterior summary ---- ####')
 
         medians = []
         p05s = []
@@ -302,7 +302,7 @@ class pyABCBackend(FittingBackend):
         print(posterior_summary)
         print('')
 
-        print('### ---- Visual check ---- ####')
+        print('#### ---- Visual check ---- ####')
 
         self.retrodict(n_retrodict)
 
