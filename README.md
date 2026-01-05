@@ -1,6 +1,6 @@
 # mempyfit
 
-The goal of this package is to provide basic functioanlity to prob dynamic ecotoxicological models using different methods.
+The goal of this package is to provide basic functionality to fit dynamic ecotoxicological models using different methods.
 
 This package has primarily been developed for teaching purposes at University Osnabrück and for the PhD school *Dynamic Modelling of Toxic Effects* hosted by University of Copenhagen. 
 
@@ -17,6 +17,10 @@ pip install git+https://github.com/simonhansul/mempyfit
 
 Usage is described in the example notebooks.
 
+## Backend wishlist
+
+- Full Bayesian inference via [pymc](https://github.com/pymc-devs/pymc)
+- Amortized Bayesian inference via [BayesFlow](https://bayesflow.org/main/index.html)
 
 ## Changelog
 
