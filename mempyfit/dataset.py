@@ -226,7 +226,14 @@ class Dataset(AbstractDataset):
             )
         return "\n".join(out)
     
-    def plot(self, name, ax = None, kind = 'observation', **kwargs):
+    def plot(
+            self, 
+            name, 
+            ax = None, 
+            kind = 'observation', 
+            palette = None, 
+            **kwargs
+            ):
 
         if not ax:
             fig = plt.figure()
@@ -237,21 +244,62 @@ class Dataset(AbstractDataset):
         info = self.getinfo(name)
         value = info['value']
 
-        if kind=='observation': 
-            ax.scatter(value[:,0], value[:,1], **kwargs)
-        elif kind=='simulation':
-            ax.plot(value[:,0], value[:,1], **kwargs)
-        else:
-            raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
-        ax.set(
-            xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
-            ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
-            title = info['title']
-            )
+        # zerovariate data will not be plotted by default
+        if is_zerovariate(value):
+           if fig:
+               return fig, ax 
+           else:
+               return None    
+           
+        # univariate data: we assume that the first column is the independent variable
+        if is_univariate(value):
+            if kind=='observation': 
+                ax.scatter(value[:,0], value[:,1], **kwargs)
+            elif kind=='simulation':
+                ax.plot(value[:,0], value[:,1], **kwargs)
+            else:
+                raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
+            ax.set(
+                xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
+                ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
+                title = info['title']
+                )
+            
+            if fig:
+                return fig, ax
         
-        if fig:
-            return fig, ax
-        
+        # bivariate data: we assume that the first column is independent and continuos (x-axis, e.g. time), 
+        # the second column is independent and categorical (grouping variable, e.g. treatment), 
+        # the third column is the response variable
+
+        if is_bivariate(value):
+            # if no palette was given, construct viridis palette 
+            if not palette:
+                palette = sns.color_palette('viridis', len(np.unique(value[:,1])))
+            
+            for (j,group) in enumerate(np.unique(value[:,1])):
+
+                v_group = value[value[:,1]==group,:]
+                
+                if kind=='observation':
+                    ax.scatter(v_group[:,0], v_group[:,2], label = group, color = palette[j])
+                elif kind=='simulation':
+                    ax.plot(v_group[:,0], v_group[:,2], label = group, color = palette[j])
+                else:
+                    raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
+            
+            ax.legend(title=f"{info['labels'][1]} [{info['units'][1]}]")
+            ax.set(
+                xlabel = f"{info['labels'][0]} [{info['units'][0]}]",
+                ylabel = f"{info['labels'][1]} [{info['units'][1]}]",
+                title = info['title']
+                )
+            
+            if fig:
+                return fig, ax
+
+            
+
 
 @dataclass  
 class Container:
@@ -290,3 +338,31 @@ def as_dataset(d: dict, parent: Dataset):
             )
 
     return data
+
+#### ---- methods to check dimensionality of data ---- ####
+
+from numbers import Real
+
+@dispatch(Real)
+def is_zerovariate(x):
+    return True
+
+@dispatch(Real)
+def is_univariate(x):
+    return False
+
+@dispatch(Real)
+def is_bivariate(x):
+    return False
+
+@dispatch(np.ndarray)
+def is_zerovariate(ar):
+    return False
+
+@dispatch(np.ndarray)
+def is_univariate(ar):
+    return np.shape(ar)[1] == 2
+
+@dispatch(np.ndarray)
+def is_bivariate(ar):
+    return np.shape(ar)[1] == 3

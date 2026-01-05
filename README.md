@@ -36,3 +36,7 @@ Usage is described in the example notebooks.
 
 - Update to pyABCBackend report method
 - Added pairplot method to pyABCBackend
+
+### v0.2.3
+
+- Added plotting method for bivariate data

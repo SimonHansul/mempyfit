@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mempyfit',
-    version='0.2.1',
+    version='0.2.3',
     description='Helper functions for model fitting in Python',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
