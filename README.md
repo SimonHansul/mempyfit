@@ -1,6 +1,6 @@
 # mempyfit
 
-The goal of this package is to provide basic functioanlity to fit dynamic ecotoxicological models using different methods.
+The goal of this package is to provide basic functionality to fit dynamic ecotoxicological models using different methods.
 
 This package has primarily been developed for teaching purposes at University Osnabrück and for the PhD school *Dynamic Modelling of Toxic Effects* hosted by University of Copenhagen. 
 
