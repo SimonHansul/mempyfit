@@ -17,6 +17,10 @@ pip install git+https://github.com/simonhansul/mempyfit
 
 Usage is described in the example notebooks.
 
+## Backend wishlist
+
+- Full Bayesian inference via [pymc](https://github.com/pymc-devs/pymc)
+- Amortized Bayesian inference via [BayesFlow](https://bayesflow.org/main/index.html)
 
 ## Changelog
 
