@@ -1,4 +1,4 @@
-# mempyfit
+# **M**echanistic **E**ffect **M**odelling in **Py**thon: Fitting procedures
 
 The goal of this package is to provide basic functionality to fit dynamic ecotoxicological models using different methods.
 
