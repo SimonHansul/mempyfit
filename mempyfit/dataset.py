@@ -26,18 +26,66 @@ class DimensionalityType(Enum):
 
 @dispatch(np.ndarray)
 def get_n(ar):
+    """Return the length of a numpy array along the first axis.
+
+    Args:
+        ar (np.ndarray): Input array.
+
+    Returns:
+        int: Size of the first dimension.
+
+    Example:
+        >>> get_n(np.array([[1,2],[3,4]]))
+        2
+    """
     return np.shape(ar)[0]
 
 @dispatch(np.ndarray)
 def get_max(ar):
+    """Return the maximum value in a 2-D numpy array's last column.
+
+    Args:
+        ar (np.ndarray): Input 2-D array.
+
+    Returns:
+        scalar: Maximum value in the last column.
+
+    Example:
+        >>> get_max(np.array([[0,1],[1,2]]))
+        2
+    """
     return np.max(ar[:,-1])
 
 @dispatch(float)
 def get_max(x):
+    """Return a scalar input unchanged.
+
+    Args:
+        x (float): Input scalar.
+
+    Returns:
+        float: Same scalar value.
+
+    Example:
+        >>> get_max(3.5)
+        3.5
+    """
     return x
 
 @dispatch(int)
 def get_max (x):
+    """Return an integer input unchanged.
+
+    Args:
+        x (int): Input scalar.
+
+    Returns:
+        int: Same integer value.
+
+    Example:
+        >>> get_max(2)
+        2
+    """
     return x
 
 @dispatch(np.ndarray)
@@ -57,6 +105,14 @@ def make_empty_like(value):
 
 @dataclass
 class Dataset(AbstractDataset):
+    """Container for experimental and simulated dataset entries.
+
+    Each entry is stored with metadata, units, labels, and error model information.
+
+    Example:
+        >>> dataset = Dataset()
+        >>> dataset.add('conc', np.array([[0, 1.0]]), units=['h','mg/L'], labels=['time','conc'])
+    """
     metadata: dict = field(default_factory=dict)
     names: list[str] = field(default_factory=list)
     values: list = field(default_factory=list)  # could be numbers or np.ndarray
@@ -91,6 +147,25 @@ class Dataset(AbstractDataset):
         - value
         - units 
         - labels
+        
+        Args:
+            name (str): Label of the data entry.
+            value: Numeric scalar or numpy array for the data.
+            units (str or list[str], optional): Units for the data entry.
+            labels (str or list[str], optional): Axis labels for the data entry.
+            error_model (callable, optional): Error model used for fitting.
+            title (str, optional): Plot title for the dataset entry.
+            temperature (float, optional): Temperature associated with the data.
+            temperature_unit (str, optional): Unit of temperature.
+            dimensionality_type (DimensionalityType | None, optional): Explicit dimensionality type.
+            bibkey (str, optional): Bibliography key for the data source.
+            comment (str, optional): Comments about the data.
+
+        Returns:
+            None
+
+        Example:
+            >>> dataset.add('conc', np.array([[0,1],[1,2]]), units=['h','mg/L'], labels=['time','conc'])
         """
 
         # Check temperature consistency
@@ -127,12 +202,36 @@ class Dataset(AbstractDataset):
         self.comments.append(comment)
 
     def __getitem__(self, name: str):
+        """Return the values for the named dataset entry.
+
+        Args:
+            name (str): Entry name.
+
+        Returns:
+            object: Stored value for the requested name.
+
+        Example:
+            >>> dataset['conc']
+            array([...])
+        """
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
         idx = self.names.index(name)
         return self.values[idx]
 
     def __setitem__(self, name: str, value):
+        """Replace the value for an existing dataset entry.
+
+        Args:
+            name (str): Entry name.
+            value: New value to assign.
+
+        Returns:
+            None
+
+        Example:
+            >>> dataset['conc'] = np.array([[0, 2.0]])
+        """
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
         idx = self.names.index(name)
@@ -142,6 +241,12 @@ class Dataset(AbstractDataset):
         """
         Create a new Dataset with the same structure but with empty arrays.
         Scalar values remain as NaN, arrays are replaced with empty_like versions.
+
+        Returns:
+            Dataset: New dataset with empty placeholders.
+
+        Example:
+            >>> empty_dataset = dataset.empty_like()
         """
         new_dataset = Dataset(metadata=self.metadata.copy())
         
@@ -171,6 +276,15 @@ class Dataset(AbstractDataset):
         """
         Create an independent deep copy of the Dataset with all current values.
         Useful for storing snapshots of simulation results.
+
+        Args:
+            container (Container): Container to receive the copied dataset.
+
+        Returns:
+            None
+
+        Example:
+            >>> dataset.dump(container)
         """
         new_dataset = Dataset(metadata=self.metadata.copy())
         
@@ -200,6 +314,17 @@ class Dataset(AbstractDataset):
         container.add(new_dataset)
 
     def getinfo(self, name: str) -> OrderedDict:
+        """Return metadata and content for a named dataset entry.
+
+        Args:
+            name (str): Name of the dataset entry.
+
+        Returns:
+            OrderedDict: Metadata dictionary for the entry.
+
+        Example:
+            >>> info = dataset.getinfo('conc')
+        """
         if name not in self.names:
             raise KeyError(f"Entry '{name}' not found in dataset.")
         idx = self.names.index(name)
@@ -234,6 +359,21 @@ class Dataset(AbstractDataset):
             palette = None, 
             **kwargs
             ):
+        """Plot a dataset entry as either observation or simulation.
+
+        Args:
+            name: Name of the dataset entry to plot.
+            ax (matplotlib.axes.Axes, optional): Axes object on which to plot.
+            kind (str, optional): Plot type, either 'observation' or 'simulation'.
+            palette (optional): Color palette for grouped bivariate data.
+            **kwargs: Additional plotting keyword arguments.
+
+        Returns:
+            tuple or None: Figure and axes if a new figure is created, otherwise None.
+
+        Example:
+            >>> dataset.plot('conc', kind='simulation')
+        """
 
         if not ax:
             fig = plt.figure()
@@ -318,11 +458,34 @@ class Container:
     datasets: list[Dataset] = field(default_factory=list)
 
     def add(self, dataset):
+        """Add a dataset to the container.
+
+        Args:
+            dataset (Dataset): Dataset instance to store.
+
+        Returns:
+            None
+
+        Example:
+            >>> container.add(dataset)
+        """
         self.datasets.append(dataset)
 
 
 @dispatch(dict, Dataset)
 def as_dataset(d: dict, parent: Dataset):
+    """Convert a dictionary of values into a Dataset using a parent template.
+
+    Args:
+        d (dict): Mapping of dataset names to values.
+        parent (Dataset): Template dataset used to copy metadata.
+
+    Returns:
+        Dataset: New dataset object with copied metadata.
+
+    Example:
+        >>> as_dataset({'conc': np.array([[0,1]])}, parent_dataset)
+    """
     data = Dataset()
     
     for (key,val) in d.items():

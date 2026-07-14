@@ -13,6 +13,15 @@ import tempfile
 import pandas as pd
 
 class pyABCBackend(FittingBackend):
+    """Bayesian fitting backend using the pyABC package.
+
+    This backend wraps a `FittingProblem` and performs sequential Monte Carlo
+    ABC inference with `pyabc`.
+
+    Example:
+        >>> backend = pyABCBackend(problem)
+        >>> backend.run(popsize=500)
+"""
 
     def __init__(
             self, 
@@ -21,6 +30,17 @@ class pyABCBackend(FittingBackend):
             prior_sigma = 1, 
             scaling_function = get_max
             ):
+        """Initialize the pyABC fitting backend.
+
+        Args:
+            prob (FittingProblem): The fitting problem to calibrate.
+            priors (pyabc.Distribution, optional): Prior distributions for free parameters.
+            prior_sigma (float, optional): Log-normal sigma for automatically generated priors.
+            scaling_function (callable, optional): Function to compute scaling factors for the distance.
+
+        Example:
+            >>> backend = pyABCBackend(problem, prior_sigma=2.0)
+"""
 
         self.prob = prob
 
@@ -64,6 +84,14 @@ class pyABCBackend(FittingBackend):
         self.retrodictions = None
 
     def define_eculidean_distance(self, scaling_function = get_max):
+        """Define the Euclidean distance function used by pyABC.
+
+        Args:
+            scaling_function (callable, optional): Function to compute a scale factor from observed data.
+
+        Example:
+            >>> backend.define_eculidean_distance(get_max)
+"""
         
         distance_functions = []
         scaling_factors = []
@@ -94,6 +122,17 @@ class pyABCBackend(FittingBackend):
     def plot_priors(self, linecolor = 'black', linestyle = 'solid', **kwargs):
         """
         Plot pdfs of the prior distributions. Kwargs are passed down to the plot command.
+
+        Args:
+            linecolor (str, optional): Color of the prior density lines.
+            linestyle (str, optional): Style of the prior density lines.
+            **kwargs: Additional keyword arguments passed to `plt.subplots()`.
+
+        Returns:
+            tuple: Matplotlib figure and axes objects.
+
+        Example:
+            >>> fig, ax = backend.plot_priors(linecolor='blue')
         """
         
         nrows = int(np.ceil(len(self.priors.keys())/3))
@@ -116,6 +155,12 @@ class pyABCBackend(FittingBackend):
     def prior_sample(self):
         """
         Draw a sample from the priors.
+
+        Returns:
+            dict: Random draw for each prior parameter.
+
+        Example:
+            >>> sample = backend.prior_sample()
         """
 
         samples = [self.priors[p].rvs() for p in self.priors.keys()]
@@ -124,6 +169,13 @@ class pyABCBackend(FittingBackend):
     def define_lognorm_prior(self, prob: FittingProblem, sigma = 1.):
         """
         Define log-normal priors with median equal to initial guess and constant sigma (SD of log values).
+
+        Args:
+            prob (FittingProblem): The fitting problem with parameters to base the priors on.
+            sigma (float, optional): Standard deviation of the underlying log-normal distribution.
+
+        Example:
+            >>> backend.define_lognorm_prior(problem, sigma=1.5)
         """
 
         # construct a log-normal distribution for each of the free parameters
@@ -135,6 +187,12 @@ class pyABCBackend(FittingBackend):
     def prior_predictive_check(self, n = 100):
         """
         Evaluates n prior samples. 
+
+        Args:
+            n (int, optional): Number of prior draws to simulate.
+
+        Example:
+            >>> backend.prior_predictive_check(n=50)
         """
         
         self.prior_predictions = []
@@ -153,6 +211,15 @@ class pyABCBackend(FittingBackend):
         """
         Apply Bayesian inference, using Sequential Monte Carlo Approximate Bayesian Computation (SMC-ABC) 
         from the `pyABC` package.
+
+        Args:
+            popsize (int, optional): Population size per ABC generation.
+            max_total_nr_simulations (int, optional): Maximum number of simulations overall.
+            max_nr_populations (int, optional): Maximum number of ABC populations.
+            temp_database (str, optional): Temporary SQLite database filename.
+
+        Example:
+            >>> backend.run(popsize=1000, max_nr_populations=5)
         """
 
         # setting things up
@@ -180,8 +247,14 @@ class pyABCBackend(FittingBackend):
         self.accepted = accepted
 
     def posterior_sample(self):
-        """ 
+        """
         Draw a posterior sample from accepted particles.
+
+        Returns:
+            dict: Parameter values sampled from the posterior.
+
+        Example:
+            >>> sample = backend.posterior_sample()
         """
 
         sample_ar = self.accepted.sample(weights = 'weight')[list(self.priors.keys())].iloc[0]
@@ -189,8 +262,14 @@ class pyABCBackend(FittingBackend):
 
 
     def retrodict(self, n = 100):
-        """ 
+        """
         Generate retrodictions based on `n` posterior samples.
+
+        Args:
+            n (int, optional): Number of posterior draws used to generate retrodictions.
+
+        Example:
+            >>> backend.retrodict(n=100)
         """
 
         self.retrodictions = []
@@ -202,6 +281,12 @@ class pyABCBackend(FittingBackend):
     def extract_point_estimate(self):
         """
         Extract point estimate from pyabc results.
+
+        Returns:
+            dict: Parameter values corresponding to the highest-weight particle.
+
+        Example:
+            >>> estimate = backend.extract_point_estimate()
         """
 
         return dict(zip(
@@ -229,6 +314,19 @@ class pyABCBackend(FittingBackend):
             figkwargs_vrc = {'figsize' : (6,4)},
             n_retrodict = 100,
             ): 
+        """Generate a summary report of posterior results and visual checks.
+
+        Args:
+            figkwargs_marginaldists (dict, optional): Figure options for marginal density plots.
+            figkwargs_vrc (dict, optional): Figure options for visual predictive checks.
+            n_retrodict (int, optional): Number of posterior samples for retrodictions.
+
+        Returns:
+            dict: Report containing marginal distributions, VPC figures, and posterior summary.
+
+        Example:
+            >>> report = backend.report(n_retrodict=100)
+        """
         print()
         print('#### ---- Posterior distributions ---- ####')
         print()
