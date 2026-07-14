@@ -347,6 +347,7 @@ class pyABCBackend(FittingBackend):
 
             for (i,par) in enumerate(self.priors.keys()):
 
+                # FIXME: something is going wrong here...maybe a good idea to simplify the visualization anyhow.
                 xmin = self.priors[i].ppf(0.0001)
                 xmax = self.priors[i].ppf(0.9999)
 
