@@ -325,7 +325,7 @@ class pyABCBackend(FittingBackend):
             dict: Report containing marginal distributions, VPC figures, and posterior summary.
 
         Example:
-            >>> report = backend.report(n_retrodict=100)
+            >>> report = backend.report(n_retrodict=100
         """
         print()
         print('#### ---- Posterior distributions ---- ####')
