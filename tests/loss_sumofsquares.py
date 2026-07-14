@@ -1,1 +1,0 @@
-#def test_loss_sumofsquares():
