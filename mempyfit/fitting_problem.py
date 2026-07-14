@@ -11,10 +11,19 @@ from .error_models import sumofsquares
 from .dataset import Dataset
 
 class FittingProblem:
+    """Generic fitting problem container.
+
+    Holds observed data, a simulator, loss function, and optimization results.
+
+    Example:
+        >>> problem = FittingProblem()
+        >>> problem.simulator = lambda params: ...
+    """
 
     #### ---- Initialization of a generic FittingProblem object --- ####
 
     def __init__(self):
+        """Initialize empty fitting problem fields."""
 
         self.data: dict = None
         self.simulator: function = None
@@ -30,6 +39,14 @@ class FittingProblem:
     #### ---- Definition of complete loss / likelihood functions ---- ###
     
     def define_loss(self):
+        """Construct a complete loss function from dataset error models.
+
+        This method wraps each dataset-specific error model into a unified
+        loss function that can be evaluated on simulated and observed datasets.
+
+        Example:
+            >>> problem.define_loss()
+        """
         
         error_models = self.data.error_models
         error_models_closured = []
@@ -62,12 +79,33 @@ class FittingProblem:
         self.loss = lossfun
 
     def simulate(self):
+        """Run the simulator with current parameter values.
+
+        Returns:
+            Dataset: Simulation output from the model.
+
+        Example:
+            >>> sim = problem.simulate()
+        """
         return self.simulator(self.parameters)    
 
     def __repr__(self):
         return f"FittingProblem(data={self.data}, simulator={self.simulator}, prior={self.prior}, intguess={self.intguess})"
 
 def SSQ(D, P):
+
+    """Compute the sum of squared errors between two arrays.
+
+    Args:
+        D: Observed values.
+        P: Predicted values.
+
+    Returns:
+        float: Sum of squared differences.
+
+    Example:
+        >>> SSQ(np.array([1,2]), np.array([1,3]))
+    """
 
     return np.sum((D - P)**2)
 
@@ -77,12 +115,34 @@ def logMSE(D, P):
     Mean squared error of log-transformed values.
     """
 
+    Args:
+        D: Observed values.
+        P: Predicted values.
+
+    Returns:
+        float: Mean squared error on log-transformed data.
+
+    Example:
+        >>> logMSE(np.array([1,2]), np.array([1,3]))
+    """
+
     return np.sum(((np.log(D + 1) - np.log(P + 1))**2)/len(D)) 
 
 
 def logSSQ(D, P):      
     """
     Sum of squared error of log-transformed values.
+    """
+
+    Args:
+        D: Observed values.
+        P: Predicted values.
+
+    Returns:
+        float: Sum of squared log errors.
+
+    Example:
+        >>> logSSQ(np.array([1,2]), np.array([1,3]))
     """
 
     return np.sum(((np.log(D + 1) - np.log(P + 1))**2)) 
