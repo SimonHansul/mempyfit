@@ -249,8 +249,8 @@ class pyABCBackend(FittingBackend):
 
             for (i,par) in enumerate(self.priors.keys()):
 
-                xmin = self.priors[i].ppf(0.0001)
-                xmax = self.priors[i].ppf(0.9999)
+                xmin = self.priors[par].ppf(0.0001)
+                xmax = self.priors[par].ppf(0.9999)
 
                 pyabc.visualization.plot_kde_1d(
                     df,

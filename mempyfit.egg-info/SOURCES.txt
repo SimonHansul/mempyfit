@@ -1,9 +1,12 @@
 README.md
 setup.py
-mempyfit/FittingProblem.py
 mempyfit/__init__.py
+mempyfit/backend_abstract.py
+mempyfit/backend_pyabc.py
+mempyfit/backend_scipy.py
 mempyfit/dataset.py
-mempyfit/FittingProblem.py
+mempyfit/error_models.py
+mempyfit/fitting_problem.py
 mempyfit/parameters.py
 mempyfit.egg-info/PKG-INFO
 mempyfit.egg-info/SOURCES.txt
@@ -12,4 +15,5 @@ mempyfit.egg-info/requires.txt
 mempyfit.egg-info/top_level.txt
 tests/__init__.py
 tests/fixtures.py
+tests/loss_sumofsquares.py
 tests/test_data_entry.py
