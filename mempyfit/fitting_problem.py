@@ -113,7 +113,6 @@ def SSQ(D, P):
 def logMSE(D, P):
     """
     Mean squared error of log-transformed values.
-    """
 
     Args:
         D: Observed values.
@@ -132,7 +131,6 @@ def logMSE(D, P):
 def logSSQ(D, P):      
     """
     Sum of squared error of log-transformed values.
-    """
 
     Args:
         D: Observed values.
