@@ -143,7 +143,7 @@ class pyABCBackend(FittingBackend):
 
         for i,p in enumerate(self.priors.keys()):
 
-            xrange = np.geomspace(self.priors[p].ppf(0.0001),self.priors[p].ppf(0.9999), 10000)
+            xrange = np.geomspace(self.priors[p].ppf(0.01),self.priors[p].ppf(0.99), 10000)
             ax[i].plot(xrange, self.priors[p].pdf(xrange), color=linecolor, linestyle=linestyle)
             ax[i].set(xlabel = p)
 
@@ -330,37 +330,26 @@ class pyABCBackend(FittingBackend):
         print()
         print('#### ---- Posterior distributions ---- ####')
         print()
-        #marginaldists = self.plot_priors(**figkwargs_marginaldists)
-        #fig, ax = marginaldists
-        #
-        #sns.histplot(self.accepted, x =  'r', weights = 'weight', ax = ax[0], kde = True)
-        #sns.histplot(self.accepted, x =  'K', weights = 'weight', ax = ax[1], kde = True)
-        #
-        #plt.show()
-        print()
 
         marginaldists = self.plot_priors(label = "Prior", linecolor = "black", linestyle = "--", **figkwargs_marginaldists)
         fig, ax = marginaldists 
 
-        for t in range(self.abc_history.max_t + 1):
-            df, w = self.abc_history.get_distribution(m=0, t=t)
+        df, w = self.abc_history.get_distribution()
 
-            for (i,par) in enumerate(self.priors.keys()):
+        for (i,par) in enumerate(self.priors.keys()):
 
-                # FIXME: something is going wrong here...maybe a good idea to simplify the visualization anyhow.
-                xmin = self.priors[par].ppf(0.0001)
-                xmax = self.priors[par].ppf(0.9999)
+            #xmin = self.priors[par].ppf(0.01)
+            #xmax = self.priors[par].ppf(0.99)
 
-                pyabc.visualization.plot_kde_1d(
-                    df,
-                    w,
-                    xmin=xmin,
-                    xmax=xmax,
-                    x=par,
-                    xname=par,
-                    ax=ax[i],
-                    label=f"Posterior at step {t}",
-                )
+            pyabc.visualization.plot_kde_1d(
+                df,
+                w,
+                #xmin=xmin,
+                #xmax=xmax,
+                x=par,
+                xname=par,
+                ax=ax[i]
+            )
 
         ax[0].legend()
         plt.show()
