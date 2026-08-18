@@ -298,9 +298,6 @@ class Dataset(AbstractDataset):
             if fig:
                 return fig, ax
 
-            
-
-
 @dataclass  
 class Container:
 

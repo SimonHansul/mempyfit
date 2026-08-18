@@ -1,13 +1,7 @@
-# **M**echanistic **E**ffect **M**odelling in **Py**thon: Fitting procedures
+# mempyfit
 
-The goal of this package is to provide basic functionality to fit dynamic ecotoxicological models using different methods.
-
-This package has primarily been developed for teaching purposes at University Osnabrück and for the PhD school *Dynamic Modelling of Toxic Effects* hosted by University of Copenhagen. 
-
-The functionality of the package is currently mostly limited to what is useful for these courses, although I can envision further development in the future.
-For a more comprehensive package, consider checking out [pymob](https://github.com/flo-schu/pymob). 
-
-Contributions are welcome (open an Issue or contact me directly). 
+This package is part of the `mempy` ecosystem. <br>
+The goal of this package is to provide basic functioanlity to fit (DEB-)TKTD models using either local optimization, global optimization or likelihood-free Bayesian inference.
 
 You can install the package using the repo URL and pip:
 
@@ -15,28 +9,4 @@ You can install the package using the repo URL and pip:
 pip install git+https://github.com/simonhansul/mempyfit
 ```
 
-Usage is described in the example notebooks.
-
-## Backend wishlist
-
-- Full Bayesian inference via [pymc](https://github.com/pymc-devs/pymc)
-- Amortized Bayesian inference via [BayesFlow](https://bayesflow.org/main/index.html)
-
-## Changelog
-
-### v0.2.0
-
-- Major update to the API. Introduced `FittingProblem` and `Backend` classes.
-
-### v0.2.1
-
-- Minor bugfix
-
-### v0.2.2
-
-- Update to pyABCBackend report method
-- Added pairplot method to pyABCBackend
-
-### v0.2.3
-
-- Added plotting method for bivariate data
+For a quickstart, see notebooks under `examples`.

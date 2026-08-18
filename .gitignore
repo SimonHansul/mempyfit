@@ -7,3 +7,4 @@ build/*
 *.egg-info/dependency_links.txt
 *.egg-info/requires.txt
 *.egg-info/top_level.txt
+*.egg-info/SOURCES.txt
