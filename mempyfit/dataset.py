@@ -359,7 +359,7 @@ class Dataset(AbstractDataset):
             palette = None, 
             **kwargs
             ):
-        """Plot a dataset entry as either observation or simulation.
+        """A very basic plotting routine to visualize a dataset entry as either observation (dots) or simulation (lines).
 
         Args:
             name: Name of the dataset entry to plot.
@@ -422,9 +422,14 @@ class Dataset(AbstractDataset):
                 v_group = value[value[:,1]==group,:]
                 
                 if kind=='observation':
-                    ax.scatter(v_group[:,0], v_group[:,2], label = group, color = palette[j])
+                    ax.scatter(
+                        v_group[:,0], v_group[:,2], 
+                        label = group, 
+                        color = palette[j], 
+                        **kwargs
+                        )
                 elif kind=='simulation':
-                    ax.plot(v_group[:,0], v_group[:,2], label = group, color = palette[j])
+                    ax.plot(v_group[:,0], v_group[:,2], color = palette[j], **kwargs)
                 else:
                     raise(ValueError('Unknown kind {kind}. Allowed kinds are "observation" or "simulation".'))
             

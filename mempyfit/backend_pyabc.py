@@ -335,8 +335,13 @@ class pyABCBackend(FittingBackend):
         print('#### ---- Posterior distributions ---- ####')
         print()
 
-        marginaldists = self.plot_priors(label = "Prior", linecolor = "black", linestyle = "--", **figkwargs_marginaldists)
+        marginaldists = self.plot_priors(
+            label="Prior",
+            linecolor="black", linestyle = "--", 
+            **figkwargs_marginaldists
+            )
         fig, ax = marginaldists 
+        plt.tight_layout()
 
         df, w = self.abc_history.get_distribution()
 
@@ -354,6 +359,9 @@ class pyABCBackend(FittingBackend):
                 xname=par,
                 ax=ax[i]
             )
+
+        for a in ax[len(self.priors.keys()):]:
+            fig.delaxes(a)
 
         ax[0].legend()
         plt.show()
@@ -402,16 +410,27 @@ class pyABCBackend(FittingBackend):
         ncols = np.minimum(num_entries, 4)
         nrows = int(np.ceil(num_entries/4))
 
-        VPC = plt.subplots(ncols=ncols, nrows=nrows, **figkwargs_vrc)
-        fig, ax = VPC
+        VRC = plt.subplots(ncols=ncols, nrows=nrows, **figkwargs_vrc)
+        fig, ax = VRC
         ax = np.ravel(ax)
 
         for (i,name) in enumerate(self.prob.data.names):
-            for r in self.retrodictions:
-                self.prob.data.plot(name, ax = ax[i])
-                as_dataset(r, self.prob.data).plot(name, ax = ax[i], kind = 'simulation', color = 'gray', alpha = 0.1)
+            self.prob.data.plot(name, ax = ax[i])
+            for (j,r) in enumerate(self.retrodictions):
+
+                # convert retrodiction to dataset object, then 
+                as_dataset(r, self.prob.data).plot(
+                    name, ax = ax[i], 
+                    kind = 'simulation', 
+                    alpha = 0.1
+                    )
+        
         #fig, ax = self.plot_fitted_sim(fig_kwargs=fig_kwargs)
-        report = {'marginaldists' : marginaldists, 'VPC' : (VPC), 'posterior_summary' : posterior_summary}
+        report = {
+            'figure_marginaldists' : marginaldists, 
+            'figure_VRC' : (VRC), 
+            'posterior_summary' : posterior_summary
+            }
 
         return report
 
