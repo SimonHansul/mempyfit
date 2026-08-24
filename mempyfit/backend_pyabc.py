@@ -148,7 +148,7 @@ class pyABCBackend(FittingBackend):
             ax[i].plot(xrange, self.priors[p].pdf(xrange), color=linecolor, linestyle=linestyle)
             ax[i].set(xlabel = p)
 
-        ax[0].set(ylabel = "Prior density")
+        ax[0].set(ylabel = "Density")
         sns.despine()
 
         return fig, ax
@@ -337,7 +337,8 @@ class pyABCBackend(FittingBackend):
 
         marginaldists = self.plot_priors(
             label="Prior",
-            linecolor="black", linestyle = "--", 
+            linecolor="black", 
+            linestyle="--", 
             **figkwargs_marginaldists
             )
         fig, ax = marginaldists 
