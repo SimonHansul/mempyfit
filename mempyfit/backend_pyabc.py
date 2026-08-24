@@ -314,8 +314,9 @@ class pyABCBackend(FittingBackend):
             
     def report(
             self, 
-            figkwargs_marginaldists = {'figsize' : (6, 4)}, 
-            figkwargs_vrc = {'figsize' : (6,4)},
+            figkwargs_marginaldists = {}, 
+            figkwargs_vrc = {},
+            linealpha = 0.5, 
             n_retrodict = 100,
             ): 
         """Generate a summary report of posterior results and visual checks.
@@ -323,6 +324,7 @@ class pyABCBackend(FittingBackend):
         Args:
             figkwargs_marginaldists (dict, optional): Figure options for marginal density plots.
             figkwargs_vrc (dict, optional): Figure options for visual predictive checks.
+            linealpha (optional): alpha value used to draw simulation lines.
             n_retrodict (int, optional): Number of posterior samples for retrodictions.
 
         Returns:
@@ -331,6 +333,21 @@ class pyABCBackend(FittingBackend):
         Example:
             >>> report = backend.report(n_retrodict=100
         """
+
+        # default figure settings are updated and possibly overwritten
+
+        kwargs_marginaldists = {
+            'figsize' : (6, 4)
+        }
+        kwargs_marginaldists.update(figkwargs_marginaldists)
+
+        kwargs_vrc = {
+            'figsize' : (6,4), 
+            'alpha' : 0.1
+        }
+        kwargs_vrc.update(figkwargs_vrc)
+
+
         print()
         print('#### ---- Posterior distributions ---- ####')
         print()
@@ -339,7 +356,7 @@ class pyABCBackend(FittingBackend):
             label="Prior",
             linecolor="black", 
             linestyle="--", 
-            **figkwargs_marginaldists
+            **kwargs_marginaldists
             )
         fig, ax = marginaldists 
         plt.tight_layout()
@@ -411,7 +428,7 @@ class pyABCBackend(FittingBackend):
         ncols = np.minimum(num_entries, 4)
         nrows = int(np.ceil(num_entries/4))
 
-        VRC = plt.subplots(ncols=ncols, nrows=nrows, **figkwargs_vrc)
+        VRC = plt.subplots(ncols=ncols, nrows=nrows, **kwargs_vrc)
         fig, ax = VRC
         ax = np.ravel(ax)
 
@@ -423,7 +440,7 @@ class pyABCBackend(FittingBackend):
                 as_dataset(r, self.prob.data).plot(
                     name, ax = ax[i], 
                     kind = 'simulation', 
-                    alpha = 0.1
+                    alpha = linealpha
                     )
         
         #fig, ax = self.plot_fitted_sim(fig_kwargs=fig_kwargs)
