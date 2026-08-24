@@ -10,6 +10,7 @@ import numpy as np
 from numbers import Real
 import os
 import tempfile
+import uuid
 import pandas as pd
 
 class pyABCBackend(FittingBackend):
@@ -205,8 +206,7 @@ class pyABCBackend(FittingBackend):
             self, 
             popsize = 1000,
             max_total_nr_simulations = 10_000, 
-            max_nr_populations = 10,
-            temp_database = "data.db"
+            max_nr_populations = 10
             ):
         """
         Apply Bayesian inference, using Sequential Monte Carlo Approximate Bayesian Computation (SMC-ABC) 
@@ -230,8 +230,12 @@ class pyABCBackend(FittingBackend):
             population_size=popsize, 
             )
          
+        random_string = uuid.uuid4().hex
+        temp_database = f"data_{random_string}.db"
+        
         db_path = os.path.join(tempfile.gettempdir(), temp_database) # pyABC stores some information in a temporary file, this is set up here
         abc.new("sqlite:///" + db_path, self.data_abc) # the data is defined as a database entry
+
         history = abc.run( # running the SMC-ABC
             max_total_nr_simulations = max_total_nr_simulations, # we set a limit on the maximum number of simulations to run
             max_nr_populations = max_nr_populations, # and a limit on the maximum number of populations, i.e. successive updates of the probability distributions
