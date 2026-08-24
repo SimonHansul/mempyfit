@@ -7,7 +7,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Simon Hansul',
-    author_email='simonhansul@gmail.com',
+    author_email='hansul@gaiac-eco.de',
     url='https://github.com/simonhansul/mempyfit.git',
     packages=find_packages(),
     install_requires=[
