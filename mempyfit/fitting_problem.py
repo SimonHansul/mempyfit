@@ -50,23 +50,26 @@ class FittingProblem:
         
         error_models = self.data.error_models
         error_models_closured = []
-        k = np.sum(self.parameters.free)
+        #k = np.sum(self.parameters.free)
 
         # iterate over all error models
         for error_model in error_models:
             
             # check if we need to encapsulate additional input arguments
              
-            if error_model == sumofsquares:
-                error_models_closured.append(error_model)
+            # NOTE: there is currently no actual closure happening; 
+            # we should either a) get rid of the closure construct altogether
+            # b) allow in the API to flexibly pass on additional arguments to create the closures
+            #if error_model == sumofsquares:
+            error_models_closured.append(error_model)
 
-            elif error_model == negloglike:
-                def errmod_close(sim, obs):
-                    return negloglike(sim, obs, k)
-                error_models_closured.append(errmod_close)
-
-            else: 
-                raise(ValueError(f'Error model not implemented for automatic loss generation: {error_model}'))
+            #elif error_model == negloglike:
+            #    def errmod_close(sim, obs):
+            #        return negloglike(sim, obs, k)
+            #    error_models_closured.append(errmod_close)
+            #
+            #else: 
+            #    raise(ValueError(f'Error model not implemented for automatic loss generation: {error_model}'))
             
         def lossfun(sim: Dataset, obs: Dataset):
 
@@ -91,56 +94,3 @@ class FittingProblem:
 
     def __repr__(self):
         return f"FittingProblem(data={self.data}, simulator={self.simulator}, prior={self.prior}, intguess={self.intguess})"
-
-def SSQ(D, P):
-
-    """Compute the sum of squared errors between two arrays.
-
-    Args:
-        D: Observed values.
-        P: Predicted values.
-
-    Returns:
-        float: Sum of squared differences.
-
-    Example:
-        >>> SSQ(np.array([1,2]), np.array([1,3]))
-    """
-
-    return np.sum((D - P)**2)
-
-
-def logMSE(D, P):
-    """
-    Mean squared error of log-transformed values.
-
-    Args:
-        D: Observed values.
-        P: Predicted values.
-
-    Returns:
-        float: Mean squared error on log-transformed data.
-
-    Example:
-        >>> logMSE(np.array([1,2]), np.array([1,3]))
-    """
-
-    return np.sum(((np.log(D + 1) - np.log(P + 1))**2)/len(D)) 
-
-
-def logSSQ(D, P):      
-    """
-    Sum of squared error of log-transformed values.
-
-    Args:
-        D: Observed values.
-        P: Predicted values.
-
-    Returns:
-        float: Sum of squared log errors.
-
-    Example:
-        >>> logSSQ(np.array([1,2]), np.array([1,3]))
-    """
-
-    return np.sum(((np.log(D + 1) - np.log(P + 1))**2)) 
