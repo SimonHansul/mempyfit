@@ -5,6 +5,7 @@ classes for convenient import.
 """
 
 from .dataset import *
+from .error_models import *
 from .fitting_problem import *
 from .parameters import *
 from .backend_scipy import *
