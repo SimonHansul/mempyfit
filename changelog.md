@@ -6,3 +6,8 @@
 
 - Updated pyABC report method
 - Updated `Dataset.plot()` method to avoid duplicate legends
+
+## v0.2.6
+
+- Added optional kwarg `grouping_vars` to `data.add()`. This is a column index that is used to split up data into treatment combinations. 
+- Added `nll_multinomial` error model.
