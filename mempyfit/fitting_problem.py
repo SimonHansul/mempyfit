@@ -49,28 +49,37 @@ class FittingProblem:
         """
         
         error_models = self.data.error_models
+        grouping_vars = self.data.grouping_vars
         error_models_closured = []
         #k = np.sum(self.parameters.free)
 
         # iterate over all error models
-        for error_model in error_models:
-            
-            # check if we need to encapsulate additional input arguments
-             
-            # NOTE: there is currently no actual closure happening; 
-            # we should either a) get rid of the closure construct altogether
-            # b) allow in the API to flexibly pass on additional arguments to create the closures
-            #if error_model == sumofsquares:
-            error_models_closured.append(error_model)
+        for (error_model, gvars) in zip(error_models, grouping_vars):
+         
+            # if there are no grouping vars, there is no more work to do here
+            if len(gvars)==0:
+                error_models_closured.append(error_model)
+            else:
+                # in case we have grouping variables to consider: 
+                # create a closure that captures the groupings
+                # this is relevant for error models that consider temporal dependency 
+                # (e.g. multinomial likelihood)
+                def error_model_closured(sim: np.ndarray, data: np.ndarray):
+                    l = 0
+                    for gvar in grouping_vars:
+                        levels =  np.unique(data[:,gvar])
+                        for gval in levels:
+                            idxs = np.ravel(sim[:,gvar] == gval)
+                            sim_sub = sim[idxs,:]
+                            data_sub = data[idxs,:]
+                            l += error_model(sim_sub, data_sub)
 
-            #elif error_model == negloglike:
-            #    def errmod_close(sim, obs):
-            #        return negloglike(sim, obs, k)
-            #    error_models_closured.append(errmod_close)
-            #
-            #else: 
-            #    raise(ValueError(f'Error model not implemented for automatic loss generation: {error_model}'))
-            
+                    return l
+
+                error_models_closured.append(error_model_closured)
+
+        # assemble loss function for the entire dataset
+
         def lossfun(sim: Dataset, obs: Dataset):
 
             lossval = 0

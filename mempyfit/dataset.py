@@ -116,6 +116,7 @@ class Dataset(AbstractDataset):
     metadata: dict = field(default_factory=dict)
     names: list[str] = field(default_factory=list)
     values: list = field(default_factory=list)  # could be numbers or np.ndarray
+    grouping_vars: list = field(default_factory=list)
     units: list[list[str]] = field(default_factory=list)
     labels: list[list[str]] = field(default_factory=list)
     error_models: list[callable] = field(default_factory=list)
@@ -130,13 +131,13 @@ class Dataset(AbstractDataset):
         self,
         name: str,
         value,
+        grouping_vars = None, 
         units = None,
         labels = None,
         error_model: callable = sumofsquares, 
         title: str = "",
         temperature: float = np.nan,
         temperature_unit: str = "K",
-        dimensionality_type: DimensionalityType | None = None,
         bibkey: str = "",
         comment: str = "",
     ) -> None:
@@ -174,13 +175,12 @@ class Dataset(AbstractDataset):
             raise ValueError(f"Implausible temperature {temperature} K given for {name}")
 
         # Infer dimensionality
-        if dimensionality_type is None:
-            if np.isscalar(value):
-                dimensionality_type = DimensionalityType.ZEROVARIATE
-            elif isinstance(value, np.ndarray) and value.ndim == 2 and value.shape[1] == 2:
-                dimensionality_type = DimensionalityType.UNIVARIATE
-            else:
-                dimensionality_type = DimensionalityType.MULTIVARIATE
+        if np.isscalar(value):
+            dimensionality_type = DimensionalityType.ZEROVARIATE
+        elif isinstance(value, np.ndarray) and value.ndim == 2 and value.shape[1] == 2:
+            dimensionality_type = DimensionalityType.UNIVARIATE
+        else:
+            dimensionality_type = DimensionalityType.MULTIVARIATE
 
         # Normalize units and labels
         if isinstance(units, str):
@@ -188,9 +188,16 @@ class Dataset(AbstractDataset):
         if isinstance(labels, str):
             labels = [labels]
 
+        if not grouping_vars:
+            grouping_vars = []
+
+        if isinstance(grouping_vars, int):
+            grouping_vars = [grouping_vars]
+
         # Push to dataset
         self.names.append(name)
         self.values.append(value)
+        self.grouping_vars.append(grouping_vars)
         self.units.append(units)
         self.error_models.append(error_model)
         self.labels.append(labels)
@@ -265,7 +272,6 @@ class Dataset(AbstractDataset):
                 title=self.titles[i],
                 temperature=self.temperatures[i],
                 temperature_unit=self.temperature_units[i],
-                dimensionality_type=self.dimensionality_types[i],
                 bibkey=self.bibkeys[i],
                 comment=self.comments[i]
             )
@@ -347,6 +353,7 @@ class Dataset(AbstractDataset):
         for i, name in enumerate(self.names):
             out.append(
                 f"  {i+1}. {name} ({self.dimensionality_types[i].name}) "
+                f"grouping vars: {self.grouping_vars}"
                 f"[{self.units[i]}] @ {self.temperatures[i]} {self.temperature_units[i]}"
             )
         return "\n".join(out)
