@@ -21,7 +21,7 @@ data.add(
     units = ['d', 'nM Ni$^{2+}$', '-'],
     labels = ['time', 'treatment', 'survival'], 
     title = 'Survival over time and Ni exposure',
-    grouping_vars = 1, # index of the column of the grouping variable (here: treatment)
+    grouping_vars = 1, # index of the column of the grouping variable
 )
 
 

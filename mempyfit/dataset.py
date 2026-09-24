@@ -131,7 +131,7 @@ class Dataset(AbstractDataset):
         self,
         name: str,
         value,
-        grouping_vars = None, 
+        grouping_vars: int = None, 
         units = None,
         labels = None,
         error_model: callable = sumofsquares, 
@@ -152,6 +152,7 @@ class Dataset(AbstractDataset):
         Args:
             name (str): Label of the data entry.
             value: Numeric scalar or numpy array for the data.
+            grouping_vars: An integer indicating the grouping variable. Loss will be calculated for each group separately before being added up.
             units (str or list[str], optional): Units for the data entry.
             labels (str or list[str], optional): Axis labels for the data entry.
             error_model (callable, optional): Error model used for fitting.
@@ -189,7 +190,7 @@ class Dataset(AbstractDataset):
             labels = [labels]
 
         if not grouping_vars:
-            grouping_vars = []
+            grouping_vars = np.nan
 
         if isinstance(grouping_vars, int):
             grouping_vars = [grouping_vars]

@@ -54,10 +54,10 @@ class FittingProblem:
         #k = np.sum(self.parameters.free)
 
         # iterate over all error models
-        for (error_model, gvars) in zip(error_models, grouping_vars):
+        for (error_model, gvar) in zip(error_models, grouping_vars):
          
             # if there are no grouping vars, there is no more work to do here
-            if len(gvars)==0:
+            if len(gvar)==0:
                 error_models_closured.append(error_model)
             else:
                 # in case we have grouping variables to consider: 
@@ -66,13 +66,13 @@ class FittingProblem:
                 # (e.g. multinomial likelihood)
                 def error_model_closured(sim: np.ndarray, data: np.ndarray):
                     l = 0
-                    for gvar in grouping_vars:
-                        levels =  np.unique(data[:,gvar])
-                        for gval in levels:
-                            idxs = np.ravel(sim[:,gvar] == gval)
-                            sim_sub = sim[idxs,:]
-                            data_sub = data[idxs,:]
-                            l += error_model(sim_sub, data_sub)
+                    
+                    levels =  np.unique(data[:,gvar])
+                    for gval in levels:
+                        idxs = np.ravel(sim[:,gvar] == gval)
+                        sim_sub = sim[idxs,:]
+                        data_sub = data[idxs,:]
+                        l += error_model(sim_sub, data_sub)
 
                     return l
 

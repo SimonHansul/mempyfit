@@ -11,3 +11,8 @@
 
 - Added optional kwarg `grouping_vars` to `data.add()`. This is a column index that is used to split up data into treatment combinations. 
 - Added `nll_multinomial` error model.
+
+
+## v0.2.7
+
+- `grouping_vars` is expected as an index, since the previous version did not take multiple grouping  vars into account anyway. In case multiple groupings are present (e.g. food + temperature), the current solution is to include a helper column that encodes the grouping combination.
