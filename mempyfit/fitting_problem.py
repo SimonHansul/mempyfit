@@ -57,7 +57,7 @@ class FittingProblem:
         for (error_model, gvar) in zip(error_models, grouping_vars):
          
             # if there are no grouping vars, there is no more work to do here
-            if len(gvar)==0:
+            if np.isnan(gvar):
                 error_models_closured.append(error_model)
             else:
                 # in case we have grouping variables to consider: 

@@ -131,7 +131,7 @@ class Dataset(AbstractDataset):
         self,
         name: str,
         value,
-        grouping_vars: int = None, 
+        grouping_vars: int = np.nan, 
         units = None,
         labels = None,
         error_model: callable = sumofsquares, 
@@ -188,12 +188,6 @@ class Dataset(AbstractDataset):
             units = [units]
         if isinstance(labels, str):
             labels = [labels]
-
-        if not grouping_vars:
-            grouping_vars = np.nan
-
-        if isinstance(grouping_vars, int):
-            grouping_vars = [grouping_vars]
 
         # Push to dataset
         self.names.append(name)
